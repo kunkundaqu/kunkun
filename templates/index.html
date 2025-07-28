@@ -1038,7 +1038,7 @@
                             <span>Monthly P&L</span>
                         </div>
                         <div class="performance-value {% if trader.monthly_profit >= 0 %}positive{% endif %}">
-                            {% if trader.monthly_profit >= 0 %}+{% endif %}${{ "%.2f"|format(trader.monthly_profit) }}
+                            {% if trader.monthly_profit >= 0 %}+{% endif %}{{ format_crore_inr(trader.monthly_profit) }}
                         </div>
                     </div>
                     <div class="performance-card">
@@ -1047,7 +1047,7 @@
                             <span>Total P&L</span>
                         </div>
                         <div class="performance-value {% if trader.total_profit >= 0 %}positive{% endif %}">
-                            {% if trader.total_profit >= 0 %}+{% endif %}${{ "%.2f"|format(trader.total_profit|default(0)) }}
+                            {% if trader.total_profit >= 0 %}+{% endif %}{{ format_crore_inr(trader.total_profit|default(0)) }}
                         </div>
                     </div>
                     <div class="performance-card">
@@ -1148,11 +1148,11 @@
                     <div class="main-stats">
                         <div class="main-stat-item">
                             <div class="main-stat-label">Entry Amount</div>
-                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.entry_amount) }}</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.entry_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">Market Value</div>
-                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.current_amount) }}</div>
+                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.current_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Ratio</div>
@@ -1163,7 +1163,7 @@
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Amount</div>
                             <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
-                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ "%.2f"|format(trade.profit_amount) }}
+                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}
                             </div>
                         </div>
                     </div>
@@ -1232,11 +1232,11 @@
                     <div class="main-stats">
                         <div class="main-stat-item">
                             <div class="main-stat-label">Entry Amount</div>
-                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.entry_amount) }}</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.entry_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">Market Value</div>
-                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.current_amount) }}</div>
+                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.current_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Ratio</div>
@@ -1247,7 +1247,7 @@
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Amount</div>
                             <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
-                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ "%.2f"|format(trade.profit_amount) }}
+                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}
                             </div>
                         </div>
                     </div>

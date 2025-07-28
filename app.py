@@ -433,7 +433,8 @@ def index():
         
         return render_template('index.html', 
                             trades=sorted_trades,
-                            trader_profiles=trader_profiles)
+                            trader_profiles=trader_profiles,
+                            format_crore_inr=format_crore_inr)
     except Exception as e:
         print("=" * 50)
         print("❌ 主页加载异常:")
@@ -441,7 +442,8 @@ def index():
         print("=" * 50)
         return render_template('index.html', 
                             trades=[],
-                            trader_profiles=[])
+                            trader_profiles=[],
+                            format_crore_inr=format_crore_inr)
 
 @app.route('/api/trader-profile', methods=['GET'])
 def trader_profile():
@@ -784,6 +786,7 @@ def vip_dashboard():
         total_market_value=total_market_value,
         available_funds=available_funds,
         total_profit=total_profit,
+        format_crore_inr=format_crore_inr,
         monthly_profit=monthly_profit,
         holding_profit=holding_profit,
         trades=trades,
@@ -2815,6 +2818,25 @@ def update_trader_avatar(trader_id):
             'success': False,
             'message': f'更新失败: {str(e)}'
         }), 500
+
+def convert_to_crore_inr(usd_amount):
+    """将美元金额转换为以千万为单位的卢比"""
+    # 1美元 = 约83卢比 (当前汇率)
+    inr_amount = usd_amount * 83
+    # 转换为千万单位 (1千万 = 10,000,000卢比)
+    crore_amount = inr_amount / 10000000
+    return crore_amount
+
+def format_crore_inr(amount):
+    """格式化千万卢比显示"""
+    if amount == 0:
+        return "₹0"
+    elif amount < 1:
+        # 小于1千万，显示为万卢比
+        lakh_amount = amount * 100  # 1千万 = 100万
+        return f"₹{lakh_amount:.1f}万"
+    else:
+        return f"₹{amount:.2f}千万"
 
 if __name__ == '__main__':
     # 初始化数据库

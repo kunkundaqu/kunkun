@@ -3117,19 +3117,19 @@
     <div class="glass-stat-card-grid">
         <div class="glass-stat-card">
             <div class="glass-stat-label">Initial Capital</div>
-            <div class="glass-stat-value" style="color:#00ffae;">{{ '{:,.2f}'.format(total_asset) }}<span class="glass-stat-unit">$</span></div>
+            <div class="glass-stat-value" style="color:#00ffae;">{{ format_crore_inr(total_asset) }}</div>
         </div>
         <div class="glass-stat-card">
             <div class="glass-stat-label">Total Profit</div>
-            <div class="glass-stat-value" style="color:#ffd700;">{{ '{:,.2f}'.format(total_profit) }}<span class="glass-stat-unit">$</span></div>
+            <div class="glass-stat-value" style="color:#ffd700;">{{ format_crore_inr(total_profit) }}</div>
         </div>
         <div class="glass-stat-card">
             <div class="glass-stat-label">Monthly Profit</div>
-            <div class="glass-stat-value" style="color:#52c41a;">{{ '{:,.2f}'.format(monthly_profit) }}<span class="glass-stat-unit">$</span></div>
+            <div class="glass-stat-value" style="color:#52c41a;">{{ format_crore_inr(monthly_profit) }}</div>
         </div>
         <div class="glass-stat-card">
             <div class="glass-stat-label">Holding Profit</div>
-            <div class="glass-stat-value" id="holding-profit-card" style="color:#faad14;">{{ '{:,.2f}'.format(holding_profit) }}<span class="glass-stat-unit">$</span></div>
+            <div class="glass-stat-value" id="holding-profit-card" style="color:#faad14;">{{ format_crore_inr(holding_profit) }}</div>
         </div>
     </div>
 
@@ -3189,11 +3189,11 @@
                   {{ 'Buy' if trade.direction in ['买涨','buy','多','long'] else 'Sell' }}
                 </span>
               </td>
-              <td>${{ "%.2f"|format(trade.entry_price) if trade.entry_price else '-' }}</td>
+              <td>₹{{ "%.2f"|format(trade.entry_price * 83) if trade.entry_price else '-' }}</td>
               <td class="current-price" data-symbol="{{ trade.symbol }}">
-                ${{ "%.2f"|format(trade.current_price) if trade.current_price else '-' }}
+                ₹{{ "%.2f"|format(trade.current_price * 83) if trade.current_price else '-' }}
               </td>
-              <td>${{ "%.2f"|format(trade.exit_price) if trade.exit_price else '-' }}</td>
+              <td>₹{{ "%.2f"|format(trade.exit_price * 83) if trade.exit_price else '-' }}</td>
               <td>{{ "%.1f"|format(trade.quantity) if trade.quantity else '-' }}</td>
               <td class="pnl-cell" data-entry="{{ trade.entry_price }}" data-exit="{{ trade.exit_price }}" data-current="{{ trade.current_price }}" data-quantity="{{ trade.quantity }}" data-direction="{{ trade.direction }}">
                 <span class="pnl-value">Calculating...</span>
@@ -3392,7 +3392,9 @@
         }
         
         const pnlValue = cell.querySelector('.pnl-value');
-        pnlValue.textContent = `$${pnl.toFixed(2)}`;
+        // 转换为卢比 (1美元 = 83卢比)
+        const pnlInr = pnl * 83;
+        pnlValue.textContent = `₹${pnlInr.toFixed(2)}`;
         pnlValue.className = `pnl-value ${pnl >= 0 ? 'up' : 'down'}`;
         
         const roiCell = roiCells[index];
@@ -3415,7 +3417,8 @@
           .then(response => response.json())
           .then(data => {
             if (data.success && data.price) {
-              cell.textContent = `$${parseFloat(data.price).toFixed(2)}`;
+              const priceInr = parseFloat(data.price) * 83;
+              cell.textContent = `₹${priceInr.toFixed(2)}`;
               const row = cell.closest('tr');
               row.querySelector('.pnl-cell').dataset.current = data.price;
               row.querySelector('.roi-cell').dataset.current = data.price;
@@ -3443,20 +3446,20 @@
         <div class="flex-row mb-24">
             <div class="card" style="flex:1;min-width:220px;">
                 <div class="glass-stat-label">Total Assets</div>
-                <div class="glass-stat-value gold-number">$ {{ '{:,.2f}'.format(dynamic_total_asset) }}</div>
+                <div class="glass-stat-value gold-number">{{ format_crore_inr(dynamic_total_asset) }}</div>
                 <div class="progress-bar" style="width:85%"></div>
                 <div class="progress-label" style="text-align:center;margin-top:8px;font-size:1.25rem;color:#FFD700;font-weight:700;">
-                    $ {{ '{:,.2f}'.format(dynamic_total_asset) }}
+                    {{ format_crore_inr(dynamic_total_asset) }}
                 </div>
             </div>
             <div class="card" style="flex:1;min-width:220px;">
                 <div class="glass-stat-label">Total Market Value</div>
-                <div class="glass-stat-value" style="color:#00ffae;">¥{{ '{:,.2f}'.format(total_market_value) }}</div>
+                <div class="glass-stat-value" style="color:#00ffae;">{{ format_crore_inr(total_market_value) }}</div>
                 <div class="progress-bar" style="width:65%;background:#00ffae;"></div>
             </div>
             <div class="card" style="flex:1;min-width:220px;">
                 <div class="glass-stat-label">Available Funds</div>
-                <div class="glass-stat-value" style="color:#faad14;">¥{{ '{:,.2f}'.format(available_funds) }}</div>
+                <div class="glass-stat-value" style="color:#faad14;">{{ format_crore_inr(available_funds) }}</div>
                 <div class="progress-bar" style="width:50%;background:#faad14;"></div>
             </div>
         </div>
