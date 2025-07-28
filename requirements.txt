@@ -1,12 +1,7 @@
 numpy==1.26.4
 Flask==2.0.1
 supabase==1.0.3
-supafunc==0.1.4
-httpx==0.23.3
-storage3==0.5.2
-postgrest==0.10.6
-gotrue==1.3.1
-pandas==2.0.3
+pandas==1.3.3
 yfinance==0.1.70
 pytz==2021.1
 python-dotenv==0.19.0
@@ -29,6 +24,4 @@ pytest-cov==2.12.1
 black==21.7b0
 flake8==3.9.2
 isort==5.9.3
-mypy==0.910
-APScheduler==3.10.4
-requests==2.31.0
+mypy==0.910 
