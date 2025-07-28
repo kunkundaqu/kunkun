@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, Response
 from supabase import create_client
-import pandas as pd
 import yfinance as yf
 from datetime import datetime
 import pytz
