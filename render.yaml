@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: stock-trading-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: PORT
+        value: 8000
+      - key: SUPABASE_URL
+        value: https://rwlziuinlbazgoajkcme.supabase.co
+      - key: SUPABASE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3bHppdWlubGJhemdvYWprY21lIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTE4MDA2MiwiZXhwIjoyMDYwNzU2MDYyfQ.HAAXKlwasbIoq27IHRUn4gZoMfzGvUfsI4pt4NqCThk
+      - key: FLASK_SECRET_KEY
+        value: your_secret_key_here_change_this_in_production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: stock-trading-db
+          property: connectionString
+    plan: free
+    autoDeploy: true
+
+databases:
+  - name: stock-trading-db
+    databaseName: stock_trading
+    user: stock_trading_user
+    plan: free 

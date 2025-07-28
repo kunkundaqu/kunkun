@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader Leaderboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(120deg, #181c2b 0%, #23243a 100%);
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow-x: hidden;
+            text-align: center;
+        }
+        .container {
+            text-align: center;
+        }
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .leaderboard-title {
+            font-size: 2.3rem;
+            font-weight: 800;
+            color: #ffd700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px #ffd70033;
+            text-align: left;
+        }
+        .back-btn {
+            background: #ffd700;
+            color: #181c2b;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        .back-btn:hover {
+            background: #e6c200;
+            color: #181c2b;
+        }
+        /* First Place Card */
+        .first-card {
+            background: linear-gradient(120deg, #ffd700 60%, #fffbe6 100%);
+            color: #181c2b;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px #ffd70055;
+            padding: 1.3rem 1rem 1rem 1rem !important;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            position: relative;
+            transition: transform 0.18s cubic-bezier(.4,1.3,.6,1), box-shadow 0.18s, border 0.18s;
+            min-width: 420px !important;
+            max-width: 600px !important;
+        }
+        .first-card:hover {
+            transform: translateY(-8px) scale(1.025);
+            box-shadow: 0 10px 32px #ffd70055, 0 2px 16px #0003;
+            border: 2.5px solid #ffd700;
+            z-index: 5;
+        }
+        .first-card .rank-badge {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700 60%, #ffb300 100%);
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 900;
+            border: 5px solid #fffbe6;
+            box-shadow: 0 2px 16px #ffd70055;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .first-card .trader-avatar {
+            width: 90px !important;
+            height: 90px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #fffbe6;
+            box-shadow: 0 0 24px #ffd70055;
+            margin-bottom: 0.7rem !important;
+            background: #fff;
+        }
+        .first-card .trader-name {
+            font-size: 1.3rem !important;
+            font-weight: 900;
+            color: #b8860b;
+            margin-bottom: 0.15rem !important;
+        }
+        .first-card .trader-title {
+            color: #555;
+            font-size: 1rem !important;
+            margin-bottom: 0.7rem !important;
+        }
+        .first-card .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem !important;
+            margin-bottom: 0.7rem !important;
+        }
+        .first-card .stat-block {
+            background: rgba(255,215,0,0.13);
+            border-radius: 12px;
+            padding: 0.5rem 1rem !important;
+            text-align: center;
+            min-width: 80px !important;
+        }
+        .first-card .stat-label {
+            color: #b8860b;
+            font-size: 1.05rem;
+        }
+        .first-card .stat-value {
+            color: #181c2b;
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+        .first-card .social-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .first-card .social-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4em;
+            font-size: 1.15rem;
+            color: #b8860b;
+            font-weight: 700;
+            background: rgba(255,215,0,0.18);
+            border-radius: 10px;
+            padding: 0.4em 1.2em 0.4em 0.9em;
+            box-shadow: 0 1px 4px #ffd70022;
+        }
+        .first-card .social-item .bi {
+            font-size: 1.3em;
+            color: #b8860b;
+        }
+        .first-card .profit-bar {
+            width: 100%;
+            height: 16px !important;
+            background: linear-gradient(90deg, #ffd700 0%, #2ecc71 100%);
+            border-radius: 10px;
+            margin-top: 0.7rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem !important;
+            font-weight: 900;
+            color: #181c2b;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px #ffd70033;
+        }
+        /* Second and Third Place Cards */
+        .top3-row {
+            display: flex;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+            justify-content: center;
+        }
+        .top3-card {
+            background: linear-gradient(120deg, #23243a 60%, #181c2b 100%);
+            color: #fff;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 18px #ffd70022;
+            padding: 1rem 0.7rem 0.7rem 0.7rem !important;
+            text-align: center;
+            position: relative;
+            flex: 1 1 0;
+            min-width: 300px !important;
+            max-width: 400px !important;
+            transition: transform 0.18s cubic-bezier(.4,1.3,.6,1), box-shadow 0.18s, border 0.18s;
+        }
+        .top3-card:hover {
+            transform: translateY(-8px) scale(1.025);
+            box-shadow: 0 10px 32px #ffd70055, 0 2px 16px #0003;
+            border: 2.5px solid #ffd700;
+            z-index: 5;
+        }
+        .top3-card .rank-badge {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #C0C0C0 60%, #b0b0b0 100%);
+            color: #fff;
+            font-size: 1.7rem;
+            font-weight: 900;
+            border: 4px solid #fffbe6;
+            box-shadow: 0 2px 10px #ffd70033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .top3-card.rank-3 .rank-badge {
+            background: linear-gradient(135deg, #CD7F32 60%, #b87333 100%);
+        }
+        .top3-card .trader-avatar {
+            width: 55px !important;
+            height: 55px !important;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 12px #ffd70033;
+            margin-bottom: 0.4rem !important;
+            background: #fff;
+        }
+        .top3-card .trader-name {
+            font-size: 1.01rem !important;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 0.1rem !important;
+        }
+        .top3-card .trader-title {
+            color: #b0b0b0;
+            font-size: 0.92rem !important;
+            margin-bottom: 0.4rem !important;
+        }
+        .top3-card .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.7rem !important;
+            margin-bottom: 0.3rem !important;
+        }
+        .top3-card .stat-block {
+            background: rgba(255,215,0,0.09);
+            border-radius: 8px;
+            padding: 0.3rem 0.7rem !important;
+            text-align: center;
+            min-width: 55px !important;
+        }
+        .top3-card .stat-label {
+            color: #b0b0b0;
+            font-size: 0.92rem;
+        }
+        .top3-card .stat-value {
+            color: #ffd700;
+            font-size: 1.08rem;
+            font-weight: 700;
+        }
+        .top3-card .social-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.7rem !important;
+            margin-bottom: 0.2rem !important;
+        }
+        .top3-card .social-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3em;
+            font-size: 1.01rem;
+            color: #ffd700;
+            font-weight: 600;
+            background: rgba(255,215,0,0.08);
+            border-radius: 8px;
+            padding: 0.2em 0.8em 0.2em 0.6em;
+            box-shadow: 0 1px 4px #ffd70011;
+        }
+        .top3-card .social-item .bi {
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+        .top3-card .profit-bar {
+            width: 100%;
+            height: 12px !important;
+            background: linear-gradient(90deg, #ffd700 0%, #2ecc71 100%);
+            border-radius: 8px;
+            margin-top: 0.3rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.92rem !important;
+            font-weight: 800;
+            color: #181c2b;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px #ffd70022;
+        }
+        /* 4-20名列表条 */
+        .list-table {
+            width: 100%;
+            background: #181c2b;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px #0005;
+            overflow: hidden;
+            text-align: center;
+        }
+        .list-row {
+            display: flex;
+            align-items: center;
+            padding: 0.7rem 1.2rem;
+            border-bottom: 1px solid #23243a;
+            transition: background 0.15s;
+            text-align: left;
+            justify-content: flex-start;
+        }
+        .list-row:last-child { 
+            border-bottom: none; 
+        }
+        .list-row:hover { 
+            background: #23243a; 
+        }
+        .list-rank {
+            width: 38px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffd700;
+            text-align: center;
+        }
+        .list-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffd70044;
+            margin-right: 0.7rem;
+        }
+        .list-name {
+            font-weight: 600;
+            color: #ffd700;
+            font-size: 1.05rem;
+            text-align: center;
+        }
+        .list-title {
+            color: #b0b0b0;
+            font-size: 0.92rem;
+            text-align: center;
+        }
+        .list-profit {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.4rem;
+            margin-left: auto;
+            text-align: right;
+            padding-right: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+        }
+        
+        .list-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.1rem;
+            margin-left: 1.2rem;
+            text-align: center;
+        }
+        .list-social-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3em;
+            color: #ffd700;
+            font-size: 0.98rem;
+            text-align: center;
+        }
+        .list-social-item .bi {
+            font-size: 1.1em;
+        }
+        .list-social-label {
+            font-size: 0.92rem;
+            color: #b0b0b0;
+            margin-right: 0.5rem;
+            -webkit-text-fill-color: #b0b0b0;
+            text-shadow: none;
+        }
+        @media (max-width: 900px) {
+            .podium-row { flex-direction: column !important; gap: 1.2rem !important; align-items: center !important; }
+            .first-card, .top3-card { min-width: 0 !important; max-width: 100% !important; }
+        }
+        @media (max-width: 600px) {
+            .leaderboard-header { flex-direction: column; gap: 1.2rem; }
+            .first-card { padding: 1.2rem 0.5rem; }
+            .top3-card { padding: 1rem 0.3rem; min-width: 0; }
+            .list-row { padding: 0.5rem 0.3rem; font-size: 0.95rem; }
+            .podium-row { display: none !important; }
+            .mobile-podium-carousel { 
+                display: flex !important;
+                margin-top: 3rem !important;
+            }
+        }
+        .mobile-podium-carousel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1.5rem !important;
+            position: relative;
+            height: auto;
+            width: 100%;
+            overflow: visible;
+            padding: 0 1rem;
+        }
+        
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3.5rem;
+        }
+        
+        .carousel-avatar-wrapper {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .carousel-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(.4,1.3,.6,1);
+            background: #fff;
+            will-change: transform, opacity;
+        }
+        
+        .carousel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .rank-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .rank-number {
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 1;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .rank-label {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        /* Rank 1 Style */
+        .carousel-avatar-wrapper[data-rank="1"] .rank-badge {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 140, 0, 0.95));
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            animation: rankShine 2s infinite;
+        }
+        
+        .carousel-avatar-wrapper[data-rank="1"] .rank-number {
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .carousel-avatar-wrapper[data-rank="1"] .rank-label {
+            color: #ffffff;
+        }
+        
+        /* Rank 2 Style */
+        .carousel-avatar-wrapper[data-rank="2"] .rank-badge {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.95), rgba(232, 232, 232, 0.95));
+            box-shadow: 0 4px 15px rgba(192, 192, 192, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .carousel-avatar-wrapper[data-rank="2"] .rank-number {
+            color: #333333;
+        }
+        
+        .carousel-avatar-wrapper[data-rank="2"] .rank-label {
+            color: #333333;
+        }
+        
+        /* Rank 3 Style */
+        .carousel-avatar-wrapper[data-rank="3"] .rank-badge {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.95), rgba(223, 168, 120, 0.95));
+            box-shadow: 0 4px 15px rgba(205, 127, 50, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .carousel-avatar-wrapper[data-rank="3"] .rank-number {
+            color: #333333;
+        }
+        
+        .carousel-avatar-wrapper[data-rank="3"] .rank-label {
+            color: #333333;
+        }
+        
+        .carousel-data {
+            text-align: center;
+            width: 100%;
+            padding: 0 1rem;
+            margin-top: 2rem;
+        }
+        
+        .carousel-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .carousel-title {
+            font-size: 1rem;
+            color: #b0b0b0;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .carousel-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 0;
+        }
+        
+        .carousel-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .carousel-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.1);
+        }
+        
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+        .podium-row { gap: 2.5rem !important; align-items: flex-end !important; }
+        .podium-card {
+            background: rgba(255,255,255,0.10) !important;
+            backdrop-filter: blur(6px);
+            border-radius: 22px;
+            box-shadow: 0 4px 18px #000a;
+            min-width: 340px;
+            max-width: 420px;
+            padding: 2.2rem 1.2rem 1.2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            border: 2.5px solid transparent;
+            transition: transform 0.18s cubic-bezier(.4,1.3,.6,1), box-shadow 0.18s, border 0.18s;
+        }
+        .podium-card:hover {
+            transform: translateY(-8px) scale(1.025);
+            box-shadow: 0 10px 32px #ffd70055, 0 2px 16px #0003;
+            border: 2.5px solid #ffd70088;
+            z-index: 5;
+        }
+        .podium-card.podium-rank-1 {
+            border: 2.5px solid #ffd700;
+            box-shadow: 0 8px 32px #ffd70055, 0 4px 24px #000a;
+            min-width: 380px;
+            max-width: 480px;
+            background: rgba(255,255,255,0.13) !important;
+        }
+        .podium-card.podium-rank-2 {
+            border: 2.5px solid #C0C0C0;
+            background: rgba(255,255,255,0.10) !important;
+        }
+        .podium-card.podium-rank-3 {
+            border: 2.5px solid #CD7F32;
+            background: rgba(255,255,255,0.10) !important;
+        }
+        .podium-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #ffd700;
+            box-shadow: 0 0 24px #ffd70033;
+            margin-bottom: 0.7rem;
+            background: #fff;
+            z-index: 2;
+        }
+        .podium-rank-badge {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            min-width: 0;
+            height: auto;
+            border-radius: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: flex-start;
+            box-shadow: none;
+            border: none;
+            background: none;
+            padding: 0;
+            z-index: 3;
+            gap: 0.18em;
+        }
+        .podium-rank-badge .top-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fffbe6cc;
+            letter-spacing: 0.22em;
+            line-height: 1;
+            margin-left: 2px;
+            text-shadow: 0 2px 8px #0002;
+        }
+        .podium-card.podium-rank-1 .podium-rank-badge .rank-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(90deg,#ffd700 60%,#ffb300 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.05;
+            margin-left: 0.18em;
+            letter-spacing: 0.05em;
+            text-shadow: 0 4px 18px #ffd70055, 0 2px 8px #0005, 0 1px 2px #fff5;
+        }
+        .podium-card.podium-rank-2 .podium-rank-badge .rank-number {
+            font-size: 2.1rem;
+            font-weight: 900;
+            background: linear-gradient(90deg,#C0C0C0 60%,#b0b0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.05;
+            margin-left: 0.18em;
+            letter-spacing: 0.05em;
+            text-shadow: 0 4px 18px #C0C0C055, 0 2px 8px #0005, 0 1px 2px #fff5;
+        }
+        .podium-card.podium-rank-3 .podium-rank-badge .rank-number {
+            font-size: 2.1rem;
+            font-weight: 900;
+            background: linear-gradient(90deg,#CD7F32 60%,#b87333 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.05;
+            margin-left: 0.18em;
+            letter-spacing: 0.05em;
+            text-shadow: 0 4px 18px #CD7F3255, 0 2px 8px #0005, 0 1px 2px #fff5;
+        }
+        .podium-profit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+        .podium-profit-label {
+            font-size: 1.15rem;
+            color: #ffd700;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+            text-align: center;
+        }
+        .podium-profit-amount {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffd700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px #ffd70033, 0 1px 2px #fff5;
+            line-height: 1.1;
+            text-align: center;
+        }
+        .podium-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.1rem;
+            text-align: center;
+        }
+        .podium-title {
+            color: #b0b0b0;
+            font-size: 1.05rem;
+            margin-bottom: 0.7rem;
+            text-align: center;
+        }
+        .podium-bottom-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.7rem;
+            width: 100%;
+        }
+        .podium-bottom-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.08rem;
+        }
+        .podium-bottom-item .icon-gold { color: #ffd700; }
+        .podium-bottom-label {
+            color: #b0b0b0;
+            font-size: 0.92rem;
+            font-weight: 500;
+            margin-top: 0.1rem;
+        }
+        /* 排序选项样式 */
+        .sort-options {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            max-width: 600px;
+        }
+        
+        .sort-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            color: #b0b0b0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            justify-content: center;
+            min-width: 160px;
+            white-space: nowrap;
+        }
+        
+        .sort-option:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+        }
+        
+        .sort-option.active {
+            background: rgba(255, 215, 0, 0.15);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+        
+        .sort-option i {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .sort-options {
+                flex-wrap: nowrap;
+                gap: 0.8rem;
+                padding: 0 0.5rem;
+            }
+            
+            .sort-option {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+                min-width: 0;
+                flex: 1;
+            }
+        }
+
+        /* TOP1 闪光动画 */
+        @keyframes shine {
+            0% {
+                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4),
+                            inset 0 -2px 5px rgba(0,0,0,0.2);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(255, 215, 0, 0.6),
+                            inset 0 -2px 5px rgba(0,0,0,0.2),
+                            0 0 15px rgba(255, 215, 0, 0.4);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4),
+                            inset 0 -2px 5px rgba(0,0,0,0.2);
+            }
+        }
+
+        /* 更新轮播图头像的样式 */
+        @keyframes borderShine {
+            0% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes rankShine {
+            0% {
+                box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(255, 215, 0, 0.6),
+                            0 0 20px rgba(255, 215, 0, 0.4);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+            }
+        }
+        @media (max-width: 600px) {
+            .list-row { 
+                padding: 0.8rem 0.5rem; 
+            }
+            .list-profit {
+                font-size: 1.2rem;
+                padding-right: 0.5rem;
+            }
+            .list-social-label {
+                display: none;
+            }
+        }
+        .list-middle-data {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: 1.5rem;
+        }
+
+        .list-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #ffd700;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .list-stat-item i {
+            font-size: 1.1em;
+        }
+
+        .list-stat-item .stat-label {
+            color: #b0b0b0;
+            font-size: 0.85rem;
+            font-weight: normal;
+            margin-left: 0.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .list-middle-data {
+                display: none;
+            }
+            .list-row { 
+                padding: 0.8rem 0.5rem; 
+            }
+            .list-profit {
+                font-size: 1.2rem;
+                padding-right: 0.5rem;
+            }
+            .list-social-label {
+                display: none;
+            }
+        }
+
+        .like-btn {
+            background: none;
+            border: none;
+            color: #ffd700;
+            cursor: pointer;
+            padding: 0.2rem;
+            margin-left: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        .like-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .like-btn:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="leaderboard-header">
+            <div class="leaderboard-title" style="text-align: left; width: auto;">
+                <i class="bi bi-trophy-fill" style="color:#ffd700;"></i> Trader Leaderboard
+            </div>
+            <a href="/" class="back-btn" style="text-align: center;"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+        </div>
+        <!-- Competition Introduction and Rules Card -->
+        <div class="mb-4" style="max-width: 1200px; margin: 0 auto; text-align: center;">
+            <div style="background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%); border-radius: 20px; box-shadow: 0 4px 18px #0006; padding: 2.7rem 3rem 2.2rem 3rem; border: 2.5px solid #ffd70033; text-align: center;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.7em; margin-bottom: 0.7em; text-align: center;">
+                </div>
+                
+                <!-- Total Profit Section -->
+                <div style="margin-bottom: 1.2rem; padding: 1rem; background: rgba(255,215,0,0.05); border-radius: 10px; border: 1px solid rgba(255,215,0,0.2); text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center;" onclick="toggleDetails('profit-details')">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; text-align: center;">
+                            <i class="bi bi-currency-dollar" style="font-size: 1.3rem; color: #ffd700;"></i>
+                            <h3 style="color: #ffd700; font-size: 1.2rem; font-weight: 700; margin: 0; text-align: center;">Total Profit</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" style="color: #ffd700; font-size: 1.2rem;" id="profit-icon"></i>
+                    </div>
+                    <div style="color: #fff; font-size: 1rem; margin-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.5rem; text-align: center; display: flex; justify-content: center; gap: 2rem;">
+                            <span>🥇 $100,000</span>
+                            <span>🥈 $80,000</span>
+                            <span>🥉 $50,000</span>
+                        </p>
+                    </div>
+                    <div id="profit-details" style="display: none; margin-top: 0.8rem; border-top: 1px solid rgba(255,215,0,0.1); padding-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.8rem; text-align: center;"><strong>Competition Rules:</strong></p>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; text-align: center;">
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Minimum 10 trades per month required</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Monthly profit must exceed $1 million</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">All trades must be updated in real-time with screenshots</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Profit calculation period: 1st to last day of each month</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- VIP Members Section -->
+                <div style="margin-bottom: 1.2rem; padding: 1rem; background: rgba(255,215,0,0.05); border-radius: 10px; border: 1px solid rgba(255,215,0,0.2); text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center;" onclick="toggleDetails('vip-details')">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; text-align: center;">
+                            <i class="bi bi-people-fill" style="font-size: 1.3rem; color: #ffd700;"></i>
+                            <h3 style="color: #ffd700; font-size: 1.2rem; font-weight: 700; margin: 0; text-align: center;">VIP Members</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" style="color: #ffd700; font-size: 1.2rem;" id="vip-icon"></i>
+                    </div>
+                    <div style="color: #fff; font-size: 1rem; margin-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.5rem; text-align: center; display: flex; justify-content: center; gap: 2rem;">
+                            <span>🥇 $50,000</span>
+                            <span>🥈 $30,000</span>
+                            <span>🥉 $10,000</span>
+                        </p>
+                    </div>
+                    <div id="vip-details" style="display: none; margin-top: 0.8rem; border-top: 1px solid rgba(255,215,0,0.1); padding-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.8rem; text-align: center;"><strong>Membership Requirements:</strong></p>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; text-align: center;">
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Members are counted cumulatively each month</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Minimum membership requirements:</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">-</span>
+                                <span style="text-align: center;">Supreme Black Card: ≥ 10 members</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">-</span>
+                                <span style="text-align: center;">Diamond: ≥ 50 members</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">-</span>
+                                <span style="text-align: center;">Gold: ≥ 100 members</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">-</span>
+                                <span style="text-align: center;">Regular: ≥ 500 members</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Likes Section -->
+                <div style="margin-bottom: 1.2rem; padding: 1rem; background: rgba(255,215,0,0.05); border-radius: 10px; border: 1px solid rgba(255,215,0,0.2); text-align: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center;" onclick="toggleDetails('like-details')">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5em; text-align: center;">
+                            <i class="bi bi-hand-thumbs-up-fill" style="font-size: 1.3rem; color: #ffd700;"></i>
+                            <h3 style="color: #ffd700; font-size: 1.2rem; font-weight: 700; margin: 0; text-align: center;">Likes</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" style="color: #ffd700; font-size: 1.2rem;" id="like-icon"></i>
+                    </div>
+                    <div style="color: #fff; font-size: 1rem; margin-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.5rem; text-align: center; display: flex; justify-content: center; gap: 2rem;">
+                            <span>🥇 $10,000</span>
+                            <span>🥈 $8,000</span>
+                            <span>🥉 $5,000</span>
+                        </p>
+                    </div>
+                    <div id="like-details" style="display: none; margin-top: 0.8rem; border-top: 1px solid rgba(255,215,0,0.1); padding-top: 0.8rem; text-align: center;">
+                        <p style="margin-bottom: 0.8rem; text-align: center;"><strong>Like Rules:</strong></p>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; text-align: center;">
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">One like per user per day</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Minimum 10,000 likes required to join the leaderboard</span>
+                            </li>
+                            <li style="margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center;">
+                                <span style="color: #ffd700;">•</span>
+                                <span style="text-align: center;">Any form of like manipulation will result in disqualification</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="color: #b0b0b0; font-size: 0.9rem; line-height: 1.5; margin-top: 1rem; text-align: center;">
+                    <p style="margin-bottom: 0.3em; text-align: center;"><strong>Competition Period:</strong> 1st - Last day of each month (Monthly Competition)</p>
+                    <p style="margin-bottom: 0.3em; text-align: center;"><strong>Important Notice:</strong> Any form of cheating will result in permanent disqualification from the rankings.</p>
+                </div>
+
+                <script>
+                function toggleDetails(id) {
+                    const details = document.getElementById(id);
+                    const icon = document.getElementById(id.replace('details', 'icon'));
+                    if (details.style.display === 'none') {
+                        details.style.display = 'block';
+                        icon.classList.remove('bi-chevron-down');
+                        icon.classList.add('bi-chevron-up');
+                    } else {
+                        details.style.display = 'none';
+                        icon.classList.remove('bi-chevron-up');
+                        icon.classList.add('bi-chevron-down');
+                    }
+                }
+                </script>
+            </div>
+        </div>
+        <!-- Leaderboard -->
+        <div style="margin-top: 1.5rem; text-align: center;">
+            <h3 style="color: #fff; font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; text-align: center;">Leaderboard</h3>
+            <div id="leaderboard-content" style="text-align: center;">
+                <!-- Leaderboard content will be dynamically loaded through JavaScript -->
+            </div>
+        </div>
+        <!-- Sorting Options -->
+        <div class="sort-options">
+            <div class="sort-option" data-sort="followers">
+                <i class="bi bi-people-fill"></i>
+                Followers
+            </div>
+            <div class="sort-option active" data-sort="profit">
+                <i class="bi bi-currency-dollar"></i>
+                Total Profit
+            </div>
+            <div class="sort-option" data-sort="likes">
+                <i class="bi bi-hand-thumbs-up-fill"></i>
+                Likes
+            </div>
+        </div>
+        {% if traders|length > 0 %}
+            <!-- Podium Style Top 3 (Desktop Display) -->
+            <div class="podium-row d-flex justify-content-center align-items-end mb-5">
+                {% if traders|length > 1 %}
+                <div class="podium-card position-relative podium-rank-2" style="order:1;">
+                    <span class="podium-rank-badge podium-rank-2"><span class="top-label">TOP</span><span class="rank-number">2</span></span>
+                    <img src="{{ traders[1].profile_image_url }}" class="podium-avatar" alt="{{ traders[1].trader_name }}">
+                    <div class="podium-profit">
+                        <span class="podium-profit-label">Total Profit</span>
+                        <span class="podium-profit-amount">${{ traders[1].total_profit|round(2) }}</span>
+                    </div>
+                    <div class="podium-name">{{ traders[1].trader_name }}</div>
+                    <div class="podium-title">{{ traders[1].professional_title }}</div>
+                    <div class="podium-bottom-row">
+                        <div class="podium-bottom-item">{{ traders[1].total_trades }}<span class="podium-bottom-label">Trades</span></div>
+                        <div class="podium-bottom-item">{{ traders[1].win_rate }}%<span class="podium-bottom-label">Win Rate</span></div>
+                        <div class="podium-bottom-item"><i class="bi bi-people-fill icon-gold"></i> {{ traders[1].followers_count }}<span class="podium-bottom-label">Followers</span></div>
+                        <div class="podium-bottom-item">
+                            <i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('{{ traders[1].trader_name }}')"></i> 
+                            <span class="likes-count">{{ traders[1].likes_count }}</span>
+                            <span class="podium-bottom-label">Likes</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="podium-card position-relative podium-rank-1" style="order:2;">
+                    <span class="podium-rank-badge podium-rank-1"><span class="top-label">TOP</span><span class="rank-number">1</span></span>
+                    <img src="{{ traders[0].profile_image_url }}" class="podium-avatar" alt="{{ traders[0].trader_name }}">
+                    <div class="podium-profit">
+                        <span class="podium-profit-label">Total Profit</span>
+                        <span class="podium-profit-amount">${{ traders[0].total_profit|round(2) }}</span>
+                    </div>
+                    <div class="podium-name">{{ traders[0].trader_name }}</div>
+                    <div class="podium-title">{{ traders[0].professional_title }}</div>
+                    <div class="podium-bottom-row">
+                        <div class="podium-bottom-item">{{ traders[0].total_trades }}<span class="podium-bottom-label">Trades</span></div>
+                        <div class="podium-bottom-item">{{ traders[0].win_rate }}%<span class="podium-bottom-label">Win Rate</span></div>
+                        <div class="podium-bottom-item"><i class="bi bi-people-fill icon-gold"></i> {{ traders[0].followers_count }}<span class="podium-bottom-label">Followers</span></div>
+                        <div class="podium-bottom-item">
+                            <i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('{{ traders[0].trader_name }}')"></i> 
+                            <span class="likes-count">{{ traders[0].likes_count }}</span>
+                            <span class="podium-bottom-label">Likes</span>
+                        </div>
+                    </div>
+                </div>
+                {% if traders|length > 2 %}
+                <div class="podium-card position-relative podium-rank-3" style="order:3;">
+                    <span class="podium-rank-badge podium-rank-3"><span class="top-label">TOP</span><span class="rank-number">3</span></span>
+                    <img src="{{ traders[2].profile_image_url }}" class="podium-avatar" alt="{{ traders[2].trader_name }}">
+                    <div class="podium-profit">
+                        <span class="podium-profit-label">Total Profit</span>
+                        <span class="podium-profit-amount">${{ traders[2].total_profit|round(2) }}</span>
+                    </div>
+                    <div class="podium-name">{{ traders[2].trader_name }}</div>
+                    <div class="podium-title">{{ traders[2].professional_title }}</div>
+                    <div class="podium-bottom-row">
+                        <div class="podium-bottom-item">{{ traders[2].total_trades }}<span class="podium-bottom-label">Trades</span></div>
+                        <div class="podium-bottom-item">{{ traders[2].win_rate }}%<span class="podium-bottom-label">Win Rate</span></div>
+                        <div class="podium-bottom-item"><i class="bi bi-people-fill icon-gold"></i> {{ traders[2].followers_count }}<span class="podium-bottom-label">Followers</span></div>
+                        <div class="podium-bottom-item">
+                            <i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('{{ traders[2].trader_name }}')"></i> 
+                            <span class="likes-count">{{ traders[2].likes_count }}</span>
+                            <span class="podium-bottom-label">Likes</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <!-- Mobile Carousel Animation -->
+            <div class="mobile-podium-carousel">
+                <div class="carousel-track" id="carouselTrack">
+                    {% set top_traders = [traders[0], traders[1], traders[2]] %}
+                    {% for trader in top_traders %}
+                    <div class="carousel-avatar-wrapper" data-index="{{ loop.index0 }}">
+                        <div class="carousel-avatar">
+                            <img src="{{ trader.profile_image_url }}" alt="{{ trader.trader_name }}">
+                        </div>
+                        <div class="rank-badge">
+                            <div class="rank-number">TOP{{ loop.index }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="carousel-data" id="carouselData">
+                    <div class="carousel-name">{{ traders[0].trader_name }}</div>
+                    <div class="carousel-title">{{ traders[0].professional_title }}</div>
+                    <div class="carousel-stats">
+                        <div class="carousel-stat">
+                            <i class="bi bi-currency-dollar stat-icon" style="color:#2ecc71;"></i>
+                            <span class="stat-value">${{ traders[0].total_profit|round(2) }}</span>
+                            <span class="stat-label">Monthly Profit</span>
+                        </div>
+                        <div class="carousel-stat">
+                            <i class="bi bi-people-fill stat-icon" style="color:#ffd700;"></i>
+                            <span class="stat-value">{{ traders[0].followers_count }}</span>
+                            <span class="stat-label">Followers</span>
+                        </div>
+                        <div class="carousel-stat">
+                            <i class="bi bi-hand-thumbs-up-fill stat-icon" style="color:#ffd700;"></i>
+                            <span class="stat-value">{{ traders[0].likes_count }}</span>
+                            <span class="stat-label">Likes</span>
+                        </div>
+                        <div class="carousel-stat">
+                            <i class="bi bi-graph-up stat-icon" style="color:#2ecc71;"></i>
+                            <span class="stat-value">{{ traders[0].win_rate }}%</span>
+                            <span class="stat-label">Win Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Ranks 4-20 List -->
+            <div class="list-table mb-5">
+                {% for trader in traders %}
+                <div class="list-row">
+                    <div class="list-rank">{{ loop.index }}</div>
+                    <img src="{{ trader.profile_image_url }}" class="list-avatar" alt="{{ trader.trader_name }}">
+                    <div style="min-width:120px;">
+                        <div class="list-name">{{ trader.trader_name }}</div>
+                    </div>
+                    <div class="list-middle-data">
+                        <div class="list-stat-item">
+                            <i class="bi bi-people-fill"></i>
+                            {{ "{:,}".format(trader.followers_count) }}
+                            <span class="stat-label">Members</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-hand-thumbs-up-fill" style="cursor: pointer;" onclick="likeTrader('{{ trader.trader_name }}')"></i>
+                            <span class="likes-count">{{ trader.likes_count }}</span>
+                            <span class="stat-label">Likes</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-graph-up"></i>
+                            {{ trader.win_rate }}%
+                            <span class="stat-label">Win Rate</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-clock-history"></i>
+                            {{ "{:,}".format(trader.total_trades) }}
+                            <span class="stat-label">Trades</span>
+                        </div>
+                    </div>
+                    <div class="list-profit ms-auto">
+                        <span class="list-social-label">Monthly Profit</span>
+                        ${{ "{:,.2f}".format(trader.total_profit) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h4 class="text-secondary">No traders found in the leaderboard.</h4>
+        </div>
+        {% endif %}
+    </div>
+    <script type="application/json" id="traders-data">
+      {{ traders[:20]|tojson|safe }}
+    </script>
+    <script>
+    // Global variables to store trader data and current sort method
+    let globalTraders = [];
+    let currentSortType = 'profit';
+
+    // Sort function
+    function sortTraders(traders, sortType) {
+        const sortedTraders = [...traders];
+        switch(sortType) {
+            case 'profit':
+                sortedTraders.sort((a, b) => b.total_profit - a.total_profit);
+                break;
+            case 'followers':
+                sortedTraders.sort((a, b) => b.followers_count - a.followers_count);
+                break;
+            case 'likes':
+                sortedTraders.sort((a, b) => b.likes_count - a.likes_count);
+                break;
+        }
+        return sortedTraders;
+    }
+
+    // Update top three display (PC)
+    function updatePodiumView(topThree) {
+        const podiumRow = document.querySelector('.podium-row');
+        if (!podiumRow) return;
+
+        // Update second place
+        if (topThree.length > 1) {
+            const rank2Card = podiumRow.querySelector('.podium-rank-2');
+            if (rank2Card) {
+                rank2Card.querySelector('.podium-avatar').src = topThree[1].profile_image_url;
+                rank2Card.querySelector('.podium-profit-amount').textContent = `$${topThree[1].total_profit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                rank2Card.querySelector('.podium-name').textContent = topThree[1].trader_name;
+                rank2Card.querySelector('.podium-title').textContent = topThree[1].professional_title;
+                const bottomRow = rank2Card.querySelector('.podium-bottom-row');
+                bottomRow.children[0].innerHTML = `${topThree[1].total_trades}<span class="podium-bottom-label">Trades</span>`;
+                bottomRow.children[1].innerHTML = `${topThree[1].win_rate}%<span class="podium-bottom-label">Win Rate</span>`;
+                bottomRow.children[2].innerHTML = `<i class="bi bi-people-fill icon-gold"></i> ${topThree[1].followers_count}<span class="podium-bottom-label">Followers</span>`;
+                bottomRow.children[3].innerHTML = `<i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('${topThree[1].trader_name}')"></i> ${topThree[1].likes_count}<span class="podium-bottom-label">Likes</span>`;
+            }
+        }
+
+        // Update first place
+        const rank1Card = podiumRow.querySelector('.podium-rank-1');
+        if (rank1Card) {
+            rank1Card.querySelector('.podium-avatar').src = topThree[0].profile_image_url;
+            rank1Card.querySelector('.podium-profit-amount').textContent = `$${topThree[0].total_profit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            rank1Card.querySelector('.podium-name').textContent = topThree[0].trader_name;
+            rank1Card.querySelector('.podium-title').textContent = topThree[0].professional_title;
+            const bottomRow = rank1Card.querySelector('.podium-bottom-row');
+            bottomRow.children[0].innerHTML = `${topThree[0].total_trades}<span class="podium-bottom-label">Trades</span>`;
+            bottomRow.children[1].innerHTML = `${topThree[0].win_rate}%<span class="podium-bottom-label">Win Rate</span>`;
+            bottomRow.children[2].innerHTML = `<i class="bi bi-people-fill icon-gold"></i> ${topThree[0].followers_count}<span class="podium-bottom-label">Followers</span>`;
+            bottomRow.children[3].innerHTML = `<i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('${topThree[0].trader_name}')"></i> ${topThree[0].likes_count}<span class="podium-bottom-label">Likes</span>`;
+        }
+
+        // Update third place
+        if (topThree.length > 2) {
+            const rank3Card = podiumRow.querySelector('.podium-rank-3');
+            if (rank3Card) {
+                rank3Card.querySelector('.podium-avatar').src = topThree[2].profile_image_url;
+                rank3Card.querySelector('.podium-profit-amount').textContent = `$${topThree[2].total_profit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                rank3Card.querySelector('.podium-name').textContent = topThree[2].trader_name;
+                rank3Card.querySelector('.podium-title').textContent = topThree[2].professional_title;
+                const bottomRow = rank3Card.querySelector('.podium-bottom-row');
+                bottomRow.children[0].innerHTML = `${topThree[2].total_trades}<span class="podium-bottom-label">Trades</span>`;
+                bottomRow.children[1].innerHTML = `${topThree[2].win_rate}%<span class="podium-bottom-label">Win Rate</span>`;
+                bottomRow.children[2].innerHTML = `<i class="bi bi-people-fill icon-gold"></i> ${topThree[2].followers_count}<span class="podium-bottom-label">Followers</span>`;
+                bottomRow.children[3].innerHTML = `<i class="bi bi-hand-thumbs-up-fill icon-gold" style="cursor: pointer;" onclick="likeTrader('${topThree[2].trader_name}')"></i> ${topThree[2].likes_count}<span class="podium-bottom-label">Likes</span>`;
+            }
+        }
+    }
+
+    // Update mobile carousel
+    function updateMobileCarousel(topThree) {
+        const track = document.getElementById('carouselTrack');
+        if (!track) return;
+
+        // Reorder: second place, first place, third place
+        const reorderedTraders = [
+            topThree[1], // second place on the left
+            topThree[0], // first place in the middle
+            topThree[2]  // third place on the right
+        ];
+
+        // Update carousel avatars
+        track.innerHTML = reorderedTraders.map((trader, idx) => {
+            let actualRank;
+            if (idx === 0) actualRank = 2;      // left shows second place
+            else if (idx === 1) actualRank = 1;  // middle shows first place
+            else actualRank = 3;                 // right shows third place
+
+            return `
+                <div class="carousel-avatar-wrapper" data-index="${idx}" data-rank="${actualRank}">
+                    <div class="carousel-avatar">
+                        <img src="${trader.profile_image_url}" alt="${trader.trader_name}">
+                    </div>
+                    <div class="rank-badge">
+                        <div class="rank-number">TOP${actualRank}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Default select middle avatar (first place)
+        currentIndex = 1;
+        
+        // Update current displayed data (show first place)
+        updateCarouselData(topThree[0]);
+
+        // Reinitialize carousel event
+        initMobileCarousel(reorderedTraders);
+    }
+
+    // Update carousel data display
+    function updateCarouselData(trader) {
+        const data = document.getElementById('carouselData');
+        if (!data) return;
+
+        data.innerHTML = `
+            <div class="carousel-name">${trader.trader_name}</div>
+            <div class="carousel-title">${trader.professional_title}</div>
+            <div class="carousel-stats">
+                <div class="carousel-stat">
+                    <i class="bi bi-currency-dollar stat-icon" style="color:#2ecc71;"></i>
+                    <span class="stat-value">$${trader.total_profit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    <span class="stat-label">Monthly Profit</span>
+                </div>
+                <div class="carousel-stat">
+                    <i class="bi bi-people-fill stat-icon" style="color:#ffd700;"></i>
+                    <span class="stat-value">${trader.followers_count.toLocaleString()}</span>
+                    <span class="stat-label">Followers</span>
+                </div>
+                <div class="carousel-stat">
+                    <i class="bi bi-hand-thumbs-up-fill stat-icon" style="color:#ffd700;"></i>
+                    <span class="stat-value">${trader.likes_count.toLocaleString()}</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+                <div class="carousel-stat">
+                    <i class="bi bi-graph-up stat-icon" style="color:#2ecc71;"></i>
+                    <span class="stat-value">${trader.win_rate}%</span>
+                    <span class="stat-label">Win Rate</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Update leaderboard display
+    function updateLeaderboard(sortType) {
+        // Update sort button state
+        document.querySelectorAll('.sort-option').forEach(option => {
+            option.classList.toggle('active', option.dataset.sort === sortType);
+        });
+
+        // Sort data
+        const sortedTraders = sortTraders(globalTraders, sortType);
+        const topThree = sortedTraders.slice(0, 3);
+        
+        // Update top three display (PC)
+        updatePodiumView(topThree);
+        
+        // Update mobile carousel
+        updateMobileCarousel(topThree);
+        
+        // Update list display
+        const listTable = document.querySelector('.list-table');
+        if (listTable) {
+            listTable.innerHTML = sortedTraders.map((trader, index) => `
+                <div class="list-row">
+                    <div class="list-rank">${index + 1}</div>
+                    <img src="${trader.profile_image_url}" class="list-avatar" alt="${trader.trader_name}">
+                    <div style="min-width:120px;">
+                        <div class="list-name">${trader.trader_name}</div>
+                    </div>
+                    <div class="list-middle-data">
+                        <div class="list-stat-item">
+                            <i class="bi bi-people-fill"></i>
+                            ${trader.followers_count.toLocaleString()}
+                            <span class="stat-label">Members</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-hand-thumbs-up-fill" style="cursor: pointer;" onclick="likeTrader('${trader.trader_name}')"></i>
+                            <span class="likes-count">${trader.likes_count}</span>
+                            <span class="stat-label">Likes</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-graph-up"></i>
+                            ${trader.win_rate}%
+                            <span class="stat-label">Win Rate</span>
+                        </div>
+                        <div class="list-stat-item">
+                            <i class="bi bi-clock-history"></i>
+                            ${trader.total_trades.toLocaleString()}
+                            <span class="stat-label">Trades</span>
+                        </div>
+                    </div>
+                    <div class="list-profit ms-auto">
+                        <span class="list-social-label">Monthly Profit</span>
+                        $${trader.total_profit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Initialize mobile carousel
+    function initMobileCarousel(traders, isInitialLoad = false) {
+        const track = document.getElementById('carouselTrack');
+        if (!track) return;
+
+        const wrappers = track.querySelectorAll('.carousel-avatar-wrapper');
+        
+        // Always start from the middle position (first place)
+        let currentIndex = 1;
+
+        // Immediately update position and data
+        updateAvatarPositions();
+        if (isInitialLoad) {
+            // Ensure first place data is displayed
+            updateCarouselData(traders[1]); // index 1 is first place
+        }
+
+        // Click event
+        wrappers.forEach((wrapper, index) => {
+            wrapper.addEventListener('click', () => {
+                if (index !== currentIndex) {
+                    currentIndex = index;
+                    updateAvatarPositions();
+                    updateCarouselData(traders[index]);
+                }
+            });
+        });
+
+        // Update avatar positions
+        function updateAvatarPositions() {
+            wrappers.forEach((wrapper, index) => {
+                const offset = index - currentIndex;
+                const xPos = offset * 160;
+                const scale = index === currentIndex ? 1.5 : 0.8;
+                const zIndex = index === currentIndex ? 3 : 1;
+                const opacity = index === currentIndex ? 1 : 0.6;
+
+                if (index === currentIndex) {
+                    wrapper.style.zIndex = zIndex;
+                    wrapper.style.opacity = opacity;
+                    wrapper.style.transform = `translate(-50%, 0) translateX(${xPos}px) scale(${scale})`;
+                    wrapper.querySelector('.carousel-avatar').style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.5)';
+                    wrapper.querySelector('.rank-badge').style.opacity = '1';
+                } else {
+                    wrapper.style.zIndex = zIndex;
+                    wrapper.style.opacity = opacity;
+                    wrapper.style.transform = `translate(-50%, 0) translateX(${xPos}px) scale(${scale})`;
+                    wrapper.querySelector('.carousel-avatar').style.boxShadow = 'none';
+                    wrapper.querySelector('.rank-badge').style.opacity = '0.8';
+                }
+            });
+        }
+
+        // Touch swipe support
+        let startX = 0;
+        let isDragging = false;
+        let dragStartTime = 0;
+        let lastTapTime = 0;
+
+        track.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            dragStartTime = Date.now();
+            e.preventDefault();
+        });
+
+        track.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            
+            wrappers.forEach((wrapper, index) => {
+                const offset = index - currentIndex;
+                const xPos = offset * 160 + diff * 0.5;
+                const scale = index === currentIndex ? 1.5 : 0.8;
+                wrapper.style.transform = `translate(-50%, 0) translateX(${xPos}px) scale(${scale})`;
+            });
+        });
+
+        track.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            
+            const endX = e.changedTouches[0].clientX;
+            const diff = endX - startX;
+            const dragDuration = Date.now() - dragStartTime;
+            
+            const velocity = Math.abs(diff) / dragDuration;
+            const isQuickSwipe = velocity > 0.5;
+            
+            if (Math.abs(diff) > 30 || isQuickSwipe) {
+                if (diff > 0 && currentIndex > 0) {
+                    currentIndex--;
+                } else if (diff < 0 && currentIndex < traders.length - 1) {
+                    currentIndex++;
+                }
+                
+                wrappers.forEach(wrapper => {
+                    wrapper.style.transition = 'all 0.3s cubic-bezier(.4,1.3,.6,1)';
+                });
+                
+                updateAvatarPositions();
+                updateCarouselData(traders[currentIndex]);
+                
+                setTimeout(() => {
+                    wrappers.forEach(wrapper => {
+                        wrapper.style.transition = '';
+                    });
+                }, 300);
+            } else {
+                updateAvatarPositions();
+            }
+            
+            isDragging = false;
+        });
+    }
+
+    // Initialize after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get and store trader data
+        globalTraders = JSON.parse(document.getElementById('traders-data').textContent);
+        
+        // Add sort option click event
+        document.querySelectorAll('.sort-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const sortType = this.dataset.sort;
+                currentSortType = sortType;
+                // Update URL parameter without refreshing page
+                const url = new URL(window.location);
+                url.searchParams.set('sort', sortType);
+                window.history.pushState({}, '', url);
+                // Update display
+                updateLeaderboard(sortType);
+            });
+        });
+
+        // Get sort parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortType = urlParams.get('sort') || 'profit';
+        currentSortType = sortType;
+
+        // Initialize display
+        updateLeaderboard(sortType);
+    });
+
+    // Reinitialize when window size changes
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 600) {
+            updateLeaderboard(currentSortType);
+        }
+    });
+
+    function likeTrader(traderName) {
+        fetch(`/api/like-trader/${traderName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update likes count in the UI
+                const likeElements = document.querySelectorAll(`[data-trader="${traderName}"] .likes-count`);
+                likeElements.forEach(element => {
+                    element.textContent = data.likes_count;
+                });
+            } else {
+                alert('Failed to like trader: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error liking trader:', error);
+            alert('Failed to like trader. Please try again.');
+        });
+    }
+    </script>
+</body>
+</html> 

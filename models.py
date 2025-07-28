@@ -1,0 +1,12 @@
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password_hash = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    status = db.Column(db.String(20), default='active')
+    role = db.Column(db.String(20), default='user')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime)
+    last_login_ip = db.Column(db.String(50))
+    last_login_location = db.Column(db.String(200))
+    membership_level = db.Column(db.String(50), default='普通会员') 

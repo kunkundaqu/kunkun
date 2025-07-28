@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Member Area</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(120deg, #181c2b 0%, #23243a 100%);
+            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 添加光纤划过效果 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 30%,
+                rgba(255, 255, 255, 0.05) 40%,
+                transparent 100%
+            );
+            animation: lightBeam 8s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes lightBeam {
+            0% {
+                transform: rotate(0deg) translate(-50%, -50%);
+            }
+            100% {
+                transform: rotate(360deg) translate(-50%, -50%);
+            }
+        }
+
+        .top-nav {
+            background: rgba(26, 28, 46, 0.95);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-left {
+            flex: 0 0 auto;
+        }
+
+        .nav-center {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .nav-right {
+            flex: 0 0 auto;
+        }
+
+        .header-icon {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        .header-title {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .btn-login {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background: #b8860b;
+            color: #000;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1c2e 0%, #13141f 100%);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 20px;
+            color: #fff;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .modal-header .btn-close {
+            color: #fff;
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            color: #fff;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #ffd700;
+            color: #fff;
+            box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, #ffd700 0%, #b8860b 100%);
+            color: #000;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #1a1c2e 0%, #13141f 100%);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .vip-banner {
+            background: linear-gradient(90deg, #ffd700 0%, #fffbe6 100%);
+            border-radius: 28px;
+            box-shadow: 0 8px 32px #ffd70033, 0 2px 16px #0003;
+            padding: 2.5rem;
+            margin: 2.5rem auto;
+            max-width: 1200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vip-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.1) 100%);
+            z-index: 1;
+        }
+
+        .vip-banner-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .vip-header {
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, #1a1c2e 0%, #13141f 100%);
+        }
+
+        .vip-title {
+            text-align: center;
+            padding: 2rem 0;
+            margin: 2rem 0;
+        }
+
+        .vip-title h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* VIP Member Area 标题样式 */
+        .vip-title.regular h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4.5rem;
+            background: linear-gradient(120deg, #4a90e2 0%, #87ceeb 25%, #4a90e2 50%, #87ceeb 75%, #4a90e2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 
+                0 0 20px rgba(74, 144, 226, 0.4),
+                0 0 40px rgba(74, 144, 226, 0.2);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .vip-title.regular h1::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle at center, rgba(74, 144, 226, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            animation: pulseBackground 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 
+                    0 0 20px rgba(74, 144, 226, 0.4),
+                    0 0 40px rgba(74, 144, 226, 0.2);
+                transform: scale(1);
+            }
+            100% {
+                text-shadow: 
+                    0 0 30px rgba(74, 144, 226, 0.6),
+                    0 0 60px rgba(74, 144, 226, 0.3);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes pulseBackground {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+
+        /* 黄金会员样式 */
+        .vip-title.gold h1 {
+            font-family: 'Cinzel', serif;
+            color: #ffd700;
+            background: linear-gradient(120deg, #ffd700, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        /* 钻石会员样式 */
+        .vip-title.diamond h1 {
+            font-family: 'Cinzel', serif;
+            color: #b9f2ff;
+            background: linear-gradient(120deg, #b9f2ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(185, 242, 255, 0.6);
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        /* 至尊黑卡会员样式 */
+        .vip-title.supreme h1 {
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            background: linear-gradient(120deg, #ffd700, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            font-weight: 700;
+            letter-spacing: 4px;
+            position: relative;
+            z-index: 1;
+            animation: supremeGlow 3s ease-in-out infinite alternate;
+        }
+
+        .vip-title.supreme h1::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            background: linear-gradient(120deg, #000, #1a1a1a, #000);
+            z-index: -1;
+            filter: blur(25px);
+            opacity: 0.7;
+            border-radius: 50%;
+        }
+
+        .vip-title.supreme h1::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, transparent 0%, rgba(255,215,0,0.1) 50%, transparent 100%);
+            z-index: -1;
+            animation: supremeShine 3s linear infinite;
+        }
+
+        @keyframes supremeGlow {
+            0% {
+                text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+                transform: scale(1);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(255, 215, 0, 1);
+                transform: scale(1.02);
+            }
+            100% {
+                text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+                transform: scale(1);
+            }
+        }
+
+        @keyframes supremeShine {
+            0% {
+                transform: translateX(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) rotate(45deg);
+            }
+        }
+
+        /* 添加字体链接 */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=Montserrat:wght@700&family=Playfair+Display:wght@700&display=swap');
+
+        .user-progress {
+            font-family: 'Montserrat', sans-serif;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .membership-cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 2rem 0;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+
+        .membership-card-wrapper {
+            flex: 1;
+            min-width: 280px;
+            max-width: 320px;
+        }
+
+        .membership-card {
+            background: linear-gradient(145deg, #1a1c2e 0%, #13141f 100%);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .membership-card.premium {
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
+        }
+
+        .membership-card.diamond {
+            box-shadow: 0 10px 30px rgba(185, 242, 255, 0.1);
+        }
+
+        .membership-card.supreme {
+            background: linear-gradient(145deg, #000000 0%, #1a1a1a 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .membership-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .card-requirement {
+            color: #ffd700;
+            font-size: 1.4rem;
+            margin: 1.5rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .feature-list li {
+            margin-bottom: 1rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .feature-list li i {
+            color: #ffd700;
+            margin-right: 0.75rem;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .upgrade-info {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .upgrade-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .vip-badge {
+            background: linear-gradient(90deg, #ffd700 0%, #b8860b 100%);
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .benefits-section {
+            background: linear-gradient(145deg, #23243a 0%, #181c2b 100%);
+            border-radius: 20px;
+            border: 2px solid #ffd70044;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .benefit-item i {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-right: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .benefit-content h4 {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        .benefit-content p {
+            color: #ffffff99;
+            margin-bottom: 0;
+            font-size: 1.2rem;
+        }
+
+        .btn-vip {
+            background: linear-gradient(90deg, #ffd700 0%, #b8860b 100%);
+            color: #181c2b;
+            padding: 1rem 2.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-vip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            color: #181c2b;
+        }
+
+        .btn-outline-vip {
+            background: transparent;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 1rem 2.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-vip:hover {
+            background: #ffd700;
+            color: #181c2b;
+        }
+
+        .testimonial-section {
+            padding: 3rem 0;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(145deg, #23243a 0%, #181c2b 100%);
+            border-radius: 20px;
+            border: 2px solid #ffd70044;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            border-color: #ffd700;
+            transform: translateY(-5px);
+        }
+
+        .testimonial-text {
+            color: #ffffff99;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            border: 2px solid #ffd700;
+        }
+
+        .author-info h5 {
+            color: #ffd700;
+            margin-bottom: 0.2rem;
+        }
+
+        .author-info p {
+            color: #ffffff99;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 1400px) {
+            .membership-cards-container {
+                padding: 2rem;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .membership-cards-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .membership-card-wrapper {
+                flex: 0 0 calc(50% - 1rem);
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-content {
+                padding: 0 0.75rem;
+            }
+            
+            .nav-center {
+                display: none !important;
+            }
+
+            .btn-back, .btn-login {
+                padding: 0.25rem 0.5rem;
+            }
+
+            .membership-card-wrapper {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .membership-card {
+                padding: 1.5rem;
+            }
+
+            .card-icon {
+                font-size: 2rem;
+            }
+
+            .membership-card h3 {
+                font-size: 1.5rem;
+            }
+
+            .feature-list li {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+
+            .col-md-6 {
+                padding: 0 0.375rem;
+            }
+
+            .membership-card {
+                padding: 1rem;
+            }
+
+            .vip-badge {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-card {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+
+        .current-level, .next-milestone {
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .current-level i, .next-milestone i {
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+            color: #ffd700;
+        }
+
+        .progress {
+            height: 15px !important;
+            background: rgba(255, 215, 0, 0.1);
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #ffd700, #b8860b);
+        }
+
+        .progress-labels {
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .current-level h4, .next-milestone h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-level p, .next-milestone p {
+            font-size: 1.3rem;
+            margin-bottom: 0;
+        }
+
+        .achievement-card {
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .achievement-icon i {
+            font-size: 1.75rem !important;
+        }
+
+        .achievement-card h4 {
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .achievement-card p {
+            font-size: 1rem;
+        }
+
+        .text-gold {
+            color: #ffd700 !important;
+        }
+
+        .admin-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .admin-btn:hover {
+            background-color: #218838;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* 动态进度卡片样式 - 优化可读性 */
+        .progress-card.clickable {
+            background: linear-gradient(90deg, #ffe066 0%, #ffd700 60%, #ffb300 100%) !important;
+            box-shadow: 0 8px 32px #ffd70033, 0 2px 16px #ffd70022;
+            color: #23243a !important;
+            transition: transform 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s, background 0.22s;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-card.clickable * {
+            color: #23243a !important;
+            font-weight: 700;
+            text-shadow: 0 1px 2px #fff8, 0 0 2px #ffd70033;
+        }
+        .progress-card.clickable .text-gold {
+            color: #b8860b !important;
+        }
+        .progress-card.clickable:hover {
+            transform: scale(1.035);
+            box-shadow: 0 16px 48px #ffd70055, 0 4px 24px #ffd70033;
+            background: linear-gradient(90deg, #ffd700 0%, #ffe066 100%) !important;
+        }
+        .progress-card.unclickable {
+            background: rgba(255,255,255,0.04) !important;
+            color: #aaa !important;
+            filter: grayscale(0.3) brightness(0.85);
+            cursor: not-allowed;
+            transition: none;
+        }
+        .progress-card.unclickable * {
+            color: #aaa !important;
+            text-shadow: none;
+        }
+        .progress-card.unclickable:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        /* 进度条优化 */
+        .progress-bar-wrapper .progress {
+            background: rgba(0,0,0,0.13) !important;
+            border-radius: 16px !important;
+            height: 24px !important;
+            box-shadow: 0 2px 12px #b8860b33, 0 1px 8px #fff4;
+            position: relative;
+        }
+        .progress-bar-wrapper .progress-bar {
+            background: linear-gradient(90deg, #fffbe6 0%, #ffe066 30%, #ffd700 70%, #ffb300 100%) !important;
+            box-shadow: 0 2px 16px #ffd70088, 0 0 8px #fff8;
+            border-radius: 16px !important;
+            height: 24px !important;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: #23243a !important;
+            text-shadow: 0 1px 4px #fff, 0 0 2px #ffd70099;
+            overflow: visible;
+        }
+        .progress-bar-wrapper .progress-bar .progress-percent {
+            width: 100%;
+            text-align: center;
+            position: absolute;
+            left: 0; top: 0; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+{% set level_map = {
+    'VIP': 'Regular Member',
+    'Regular Member': 'Regular Member',
+    'Gold Member': 'Gold Member',
+    'Diamond Member': 'Diamond Member',
+    'Supreme Black Card': 'Supreme Black Card',
+    '黄金会员': 'Gold Member',
+    '钻石会员': 'Diamond Member',
+    '至尊黑卡': 'Supreme Black Card',
+    '普通会员': 'Regular Member',
+} %}
+{% set display_level = level_map.get(trader_info.membership_level, trader_info.membership_level) %}
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a href="/" class="btn btn-back">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+            <div class="nav-center d-none d-md-flex">
+                <i class="bi bi-graph-up header-icon"></i>
+                <h1 class="header-title">Ventura Internal Performance Battle Rankings</h1>
+            </div>
+            <div class="nav-right">
+                <button class="btn btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="bi bi-person-fill me-1"></i>Login
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">User Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" placeholder="Enter your username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter your password">
+                        </div>
+                        <button type="submit" class="btn btn-submit">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP Header Section -->
+    <div class="vip-header text-center">
+        <div class="container">
+            {% if 'username' in session %}
+                {% if trader_info.membership_level == 'Regular Member' %}
+                    <div class="vip-title regular">
+                        <h1>Dear VIP Member</h1>
+                    </div>
+                {% elif trader_info.membership_level == 'Gold Member' %}
+                    <div class="vip-title gold">
+                        <h1>Esteemed Gold Member</h1>
+                    </div>
+                {% elif trader_info.membership_level == 'Diamond Member' %}
+                    <div class="vip-title diamond">
+                        <h1>Distinguished Diamond Member</h1>
+                    </div>
+                {% elif trader_info.membership_level == 'Supreme Black Card' %}
+                    <div class="vip-title supreme">
+                        <h1>Exalted Black Card Member</h1>
+                    </div>
+                {% else %}
+                    <div class="vip-title regular">
+                        <h1>VIP Member Area</h1>
+                    </div>
+                {% endif %}
+                <h2 class="display-5 mb-5 user-progress">{{ session.username }}: Your Trading Progress</h2>
+            {% else %}
+                <div class="vip-title regular">
+                    <h1>VIP Member Area</h1>
+                </div>
+                <h2 class="display-5 mb-5 user-progress">Your Trading Progress</h2>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 1000px;">
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <a href="/vip-dashboard" style="text-decoration:none;color:inherit;">
+                <div class="progress-card" style="cursor:pointer;">
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-3">
+                            <div class="current-level">
+                                <i class="bi bi-star-fill"></i>
+                                <h4 class="text-white mb-0" style="font-size: 1rem;">Current Level</h4>
+                                <p class="text-gold mb-0">{{ display_level }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress">
+                                    {% set current_target = 1000000 %}
+                                    {% set progress = ((dynamic_total_asset / current_target * 100)|round(1) if current_target > 0 else 0) %}
+                                    <div class="progress-bar" role="progressbar" 
+                                        style="width: {{ progress }}%;" 
+                                        aria-valuenow="{{ dynamic_total_asset }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="{{ current_target }}">
+                                        <span class="progress-percent">{{ progress }}%</span>
+                                    </div>
+                                </div>
+                                <div class="progress-labels d-flex justify-content-between">
+                                    <span>$ {{ '{:,.0f}'.format(dynamic_total_asset) }} / ${{ '{:,.0f}'.format(current_target) }}</span>
+                                    <span class="text-gold">Next Level: Supreme Black Card</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="next-milestone">
+                                <i class="bi bi-crown-fill"></i>
+                                <h4 class="text-white mb-0" style="font-size: 1rem;">Next Level</h4>
+                                <p class="text-gold mb-0">Supreme Black Card</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Membership Cards Section -->
+        <div class="membership-cards-container">
+            <!-- Regular Member Card -->
+            <div class="membership-card-wrapper">
+                <div class="membership-card text-center">
+                    <i class="bi bi-star-fill card-icon"></i>
+                    <h3>{% if 'username' in session %}Regular Member{% else %}Regular Member{% endif %}</h3>
+                    <div class="card-requirement">Trading Volume < $50,000</div>
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Basic Trading Tools</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Standard Market Analysis</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Community Access</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Standard Support</li>
+                    </ul>
+                    <div class="upgrade-info">
+                        <p>Increase trading volume to unlock more features</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gold Member Card -->
+            <div class="membership-card-wrapper">
+                <div class="membership-card premium text-center">
+                    <span class="vip-badge">Current Popular</span>
+                    <i class="bi bi-crown-fill card-icon"></i>
+                    <h3>{% if 'username' in session %}Gold Member{% else %}Gold Member{% endif %}</h3>
+                    <div class="card-requirement">Trading Volume > $50,000</div>
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle-fill"></i> Advanced Trading Tools</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Real-time Market Analysis</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Priority Support</li>
+                        <li><i class="bi bi-check-circle-fill"></i> VIP Community Access</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Trading Strategy Sharing</li>
+                    </ul>
+                    <div class="upgrade-info">
+                        <p>Keep trading to reach Diamond level</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diamond Member Card -->
+            <div class="membership-card-wrapper">
+                <div class="membership-card diamond text-center">
+                    <i class="bi bi-gem-fill card-icon"></i>
+                    <h3>{% if 'username' in session %}Diamond Member{% else %}Diamond Member{% endif %}</h3>
+                    <div class="card-requirement">Trading Volume > $200,000</div>
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle-fill"></i> All Gold Features</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Personal Trading Advisor</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Custom Strategy Development</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Early Access to New Features</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Exclusive Trading Events</li>
+                    </ul>
+                    <div class="upgrade-info">
+                        <p>Keep trading to reach Supreme level</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supreme Black Card Member -->
+            <div class="membership-card-wrapper">
+                <div class="membership-card supreme text-center">
+                    <span class="vip-badge" style="background: linear-gradient(90deg, #000 0%, #333 100%);">SUPREME</span>
+                    <i class="bi bi-credit-card-fill card-icon"></i>
+                    <h3>{% if 'username' in session %}Supreme Black Card{% else %}Supreme Black Card{% endif %}</h3>
+                    <div class="card-requirement">Trading Volume > $1,000,000</div>
+                    <ul class="feature-list">
+                        <li><i class="bi bi-check-circle-fill"></i> All Diamond Features</li>
+                        <li><i class="bi bi-check-circle-fill"></i> 24/7 Dedicated Trading Advisor</li>
+                        <li><i class="bi bi-check-circle-fill"></i> AI Quantitative Strategy</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Global Finance Summit Invitation</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Exclusive Investment Opportunities</li>
+                        <li><i class="bi bi-check-circle-fill"></i> One-on-One Trading Guidance</li>
+                    </ul>
+                    <div class="upgrade-info">
+                        <p>Enjoy Supreme Trading Privileges</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 获取登录表单和按钮
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.querySelector('.btn-login');
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+
+        // 检查登录状态
+        let isLoggedIn = false;
+        function checkLoginStatus() {
+            fetch('/api/check-login', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    isLoggedIn = true;
+                    updateUIForLoggedInUser(data.user);
+                } else {
+                    isLoggedIn = false;
+                }
+            })
+            .catch(error => console.error('Error checking login status:', error));
+        }
+
+        // 更新UI显示登录用户信息
+        function updateUIForLoggedInUser(user) {
+            loginBtn.innerHTML = `<i class="bi bi-person-check-fill me-2"></i>${user.username}`;
+            loginBtn.classList.add('logged-in');
+            loginBtn.removeAttribute('data-bs-toggle');
+            loginBtn.removeAttribute('data-bs-target');
+            loginBtn.onclick = handleLogout;
+
+            // 高亮进度卡片
+            const progressCardLink = document.querySelector('.progress-section a[href="/vip-dashboard"]');
+            if (progressCardLink) {
+                const card = progressCardLink.querySelector('.progress-card');
+                card.classList.remove('unclickable');
+                card.classList.add('clickable');
+            }
+
+            // If user is admin, show admin button
+            if (user.role === 'admin') {
+                const adminBtn = document.createElement('a');
+                adminBtn.href = '/admin';
+                adminBtn.className = 'btn admin-btn ms-2';
+                adminBtn.innerHTML = '<i class="bi bi-gear-fill me-2"></i>管理后台';
+                loginBtn.parentElement.appendChild(adminBtn);
+            }
+        }
+
+        // 处理登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Login successful, refresh page to show new membership info
+                    window.location.reload();
+                } else {
+                    // Login failed
+                    alert(data.message || 'Login failed. Please check your username and password.');
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alert('An error occurred during login. Please try again later.');
+            });
+        });
+
+        // 处理登出
+        function handleLogout(event) {
+            event.stopPropagation();
+            
+            fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh page immediately after successful logout
+                    window.location.reload();
+                } else {
+                    showToast('Logout failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                showToast('An error occurred during logout', 'error');
+            });
+        }
+
+        // Toast notification component
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            // 自动移除 toast
+            toast.addEventListener('hidden.bs.toast', function () {
+                toast.remove();
+            });
+        }
+
+        // 创建 Toast 容器
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '1050';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // 添加登录状态相关的样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn-login.logged-in {
+                background: #28a745;
+                color: white;
+            }
+            .btn-login.logged-in:hover {
+                background: #218838;
+                color: white;
+            }
+            .btn-login .btn-link {
+                text-decoration: none;
+                color: inherit;
+            }
+            .toast {
+                min-width: 250px;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 进度卡片登录拦截
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            const progressCardLink = document.querySelector('.progress-section a[href="/vip-dashboard"]');
+            if (progressCardLink) {
+                const card = progressCardLink.querySelector('.progress-card');
+                // 默认未登录样式
+                card.classList.add('unclickable');
+                progressCardLink.addEventListener('click', function(e) {
+                    if (!isLoggedIn) {
+                        e.preventDefault();
+                        showToast('Please log in first', 'danger');
+                        loginModal.show();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

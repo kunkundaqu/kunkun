@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>头像测试</title>
+    <style>
+        .avatar-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <h1>头像测试</h1>
+    <img src="https://poqloztmhyznarxrpllr.supabase.co/storage/v1/object/public/avatars/avatars/trade_1_34b1e38f726845a297363a8c25594168.jpg" 
+         alt="测试头像" 
+         class="avatar-img"
+         onerror="console.log('头像加载失败:', this.src); this.style.border='2px solid red';"
+         onload="console.log('头像加载成功:', this.src); this.style.border='2px solid green';">
+    
+    <script>
+        console.log('页面加载完成');
+    </script>
+</body>
+</html> 

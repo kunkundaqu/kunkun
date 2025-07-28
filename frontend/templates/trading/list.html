@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>交易记录管理</h2>
+    
+    <!-- 搜索框 -->
+    <div class="row mb-4">
+        <div class="col">
+            <form method="get" action="{% url 'search_records' %}" class="form-inline">
+                <div class="input-group">
+                    <input type="text" name="query" class="form-control" placeholder="搜索交易品种或备注..." value="{{ query }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">搜索</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newRecordModal">
+                新建交易记录
+            </button>
+        </div>
+    </div>
+
+    <!-- 交易记录表格 -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Asset Type</th>
+                    <th>Symbol</th>
+                    <th>Direction</th>
+                    <th>Quantity</th>
+                    <th>Entry Price</th>
+                    <th>Exit Price</th>
+                    <th>Entry Time</th>
+                    <th>Exit Time</th>
+                    <th>Status</th>
+                    <th>P&L</th>
+                    <th>P&L Ratio</th>
+                    <th>Current Price</th>
+                    <th>Notes</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.get_asset_type_display }}</td>
+                    <td>{{ record.symbol }}</td>
+                    <td>{{ record.get_direction_display }}</td>
+                    <td>{{ record.quantity }}</td>
+                    <td>{{ record.entry_price }}</td>
+                    <td>{{ record.exit_price|default:"-" }}</td>
+                    <td>{{ record.entry_time|date:"m/d/Y H:i" }}</td>
+                    <td>{{ record.exit_time|date:"m/d/Y H:i"|default:"-" }}</td>
+                    <td>{{ record.get_status_display }}</td>
+                    <td>{{ record.pnl|default:"-" }}</td>
+                    <td>{{ record.roi|default:"-" }}%</td>
+                    <td>{{ record.current_price|default:"-" }}</td>
+                    <td>{{ record.notes|default:"-" }}</td>
+                    <td>
+                        {% if record.status == 'open' %}
+                        <button class="btn btn-warning btn-sm close-position" data-id="{{ record.id }}">Close</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    {% if records.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if records.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ records.previous_page_number }}{% if query %}&query={{ query }}{% endif %}">上一页</a>
+            </li>
+            {% endif %}
+
+            {% for num in records.paginator.page_range %}
+            <li class="page-item {% if records.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if query %}&query={{ query }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if records.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ records.next_page_number }}{% if query %}&query={{ query }}{% endif %}">下一页</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- 新建交易记录模态框 -->
+<div class="modal fade" id="newRecordModal" tabindex="-1" role="dialog" aria-labelledby="newRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newRecordModalLabel">新建交易记录</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newRecordForm">
+                    <div class="form-group">
+                        <label for="asset_type">Asset Type</label>
+                        <select class="form-control" id="asset_type" name="asset_type" required>
+                            <option value="crypto">加密货币</option>
+                            <option value="stock">股票</option>
+                            <option value="forex">外汇</option>
+                            <option value="commodity">大宗商品</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="symbol">Symbol</label>
+                        <input type="text" class="form-control" id="symbol" name="symbol" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="direction">Direction</label>
+                        <select class="form-control" id="direction" name="direction" required>
+                            <option value="long">做多</option>
+                            <option value="short">做空</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" step="0.00000001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="entry_price">Entry Price</label>
+                        <input type="number" class="form-control" id="entry_price" name="entry_price" step="0.00000001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="entry_time">Entry Time</label>
+                        <input type="datetime-local" class="form-control" id="entry_time" name="entry_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveRecord">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 平仓模态框 -->
+<div class="modal fade" id="closePositionModal" tabindex="-1" role="dialog" aria-labelledby="closePositionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="closePositionModalLabel">Close Position</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="closePositionForm">
+                    <input type="hidden" id="record_id" name="record_id">
+                    <div class="form-group">
+                        <label for="exit_price">Exit Price</label>
+                        <input type="number" class="form-control" id="exit_price" name="exit_price" step="0.00000001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exit_time">Exit Time</label>
+                        <input type="datetime-local" class="form-control" id="exit_time" name="exit_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="close_notes">Notes</label>
+                        <textarea class="form-control" id="close_notes" name="close_notes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveClosePosition">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // 设置当前时间
+    $('#entry_time').val(new Date().toISOString().slice(0, 16));
+    $('#exit_time').val(new Date().toISOString().slice(0, 16));
+
+    // 保存新记录
+    $('#saveRecord').click(function() {
+        var formData = {
+            asset_type: $('#asset_type').val(),
+            symbol: $('#symbol').val(),
+            direction: $('#direction').val(),
+            quantity: $('#quantity').val(),
+            entry_price: $('#entry_price').val(),
+            entry_time: new Date($('#entry_time').val()).toISOString(),
+            notes: $('#notes').val()
+        };
+
+        $.ajax({
+            url: '{% url "create_trading_record" %}',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('保存失败：' + response.message);
+                }
+            },
+            error: function(xhr) {
+                alert('保存失败：' + xhr.responseJSON.message);
+            }
+        });
+    });
+
+    // 打开平仓模态框
+    $('.close-position').click(function() {
+        var recordId = $(this).data('id');
+        $('#record_id').val(recordId);
+        $('#closePositionModal').modal('show');
+    });
+
+    // 保存平仓信息
+    $('#saveClosePosition').click(function() {
+        var formData = {
+            exit_price: $('#exit_price').val(),
+            exit_time: new Date($('#exit_time').val()).toISOString(),
+            notes: $('#close_notes').val()
+        };
+
+        $.ajax({
+            url: '/trading/close/' + $('#record_id').val() + '/',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('平仓失败：' + response.message);
+                }
+            },
+            error: function(xhr) {
+                alert('平仓失败：' + xhr.responseJSON.message);
+            }
+        });
+    });
+
+    // 获取当前价格
+    $('#symbol').on('change', function() {
+        var symbol = $(this).val();
+        var assetType = $('#asset_type').val();
+        
+        if (symbol) {
+            $.get('/trading/current-price/', {
+                asset_type: assetType,
+                symbol: symbol
+            }, function(response) {
+                if (response.status === 'success') {
+                    $('#entry_price').val(response.price);
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

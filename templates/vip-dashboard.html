@@ -1,0 +1,4809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Member Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.24.15/antd.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ant-design/icons@4.7.0/dist/index.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(120deg, #181c2a 60%, #232b3e 100%);
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            min-height: 100vh;
+        }
+        /* Add forced-colors media query */
+        @media (forced-colors: active) {
+            .gold-text { forced-color-adjust: none; }
+            .green-text { forced-color-adjust: none; }
+            .big-number { forced-color-adjust: none; }
+            .gold-number { forced-color-adjust: none; }
+            .card-title, .section h2, .agreement-title, h2.card-title { forced-color-adjust: none; }
+            .styled-button, .ant-btn-primary { forced-color-adjust: none; }
+            .avatar-glow, .ant-avatar { forced-color-adjust: none; }
+            .glass-stat-card { forced-color-adjust: none; }
+            .glass-stat-label { forced-color-adjust: none; }
+            .glass-stat-value { forced-color-adjust: none; }
+            .glass-stat-sub { forced-color-adjust: none; }
+            .ant-table { forced-color-adjust: none; }
+            .ant-table-thead > tr > th { forced-color-adjust: none; }
+            .ant-table-tbody > tr > td { forced-color-adjust: none; }
+            .ant-tag { forced-color-adjust: none; }
+            .ant-progress-bg { forced-color-adjust: none; }
+            .ant-btn-link { forced-color-adjust: none; }
+        }
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 48px 32px 80px 32px;
+        }
+        @media (max-width: 900px) { .main-content { padding: 24px 8px 40px 8px; } }
+        .section {
+            background: rgba(24, 31, 42, 0.98);
+            border-radius: 28px;
+            box-shadow: 0 12px 48px 0 #181F2A55, 0 2px 24px #FFD70022;
+            margin-bottom: 48px;
+            padding: 48px 36px;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            position: relative;
+            margin-top: 56px;
+        }
+        @media (max-width: 600px) {
+          html, body {
+            background: linear-gradient(135deg, #232B3E 60%, #222a3a 100%) !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100vw !important;
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+          }
+          .main-content {
+            max-width: 100vw !important;
+            width: 100vw !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            left: 0 !important;
+            position: relative !important;
+            background: none !important;
+            box-shadow: none !important;
+          }
+          .section {
+            padding: 8px 0 !important;
+            min-height: unset !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: none !important;
+            border: none !important;
+          }
+          .vip-trade-cards-blackgold {
+            padding: 0 !important;
+            min-height: unset !important;
+            margin-bottom: 0 !important;
+            box-shadow: none !important;
+            background: none !important;
+          }
+          .vip-trade-card-blackgold {
+            margin: 0 0 16px 0;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            border-radius: 0 !important;
+          }
+        }
+        .gold-text { color: #FFD700; font-weight: 900; letter-spacing: 1px; }
+        .green-text { color: #00FFAE; font-weight: 700; }
+        .big-number { font-family: 'Roboto Mono', 'Inter', monospace; font-size: 2.6rem; color: #00ffae; font-weight: 900; text-shadow: 0 0 16px #00ffae55; }
+        .gold-number { color: #ffd700; text-shadow: 0 0 16px #ffd70077; }
+        .card-title,
+        .section h2,
+        .agreement-title,
+        h2.card-title {
+            color: #FFD700 !important;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #181F2A88;
+            margin-top: 36px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            display: inline-block;
+        }
+        .styled-button, .ant-btn-primary {
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%) !important;
+            color: #181F2A !important;
+            border: none !important;
+            font-weight: 900;
+            border-radius: 16px !important;
+            box-shadow: 0 6px 24px #FFD70044;
+            transition: all 0.3s cubic-bezier(.4,2,.6,1);
+            height: 48px;
+            padding: 0 32px;
+            font-size: 1.15rem;
+        }
+        .styled-button:hover, .ant-btn-primary:hover {
+            background: linear-gradient(90deg, #FFE066 0%, #FFD700 100%) !important;
+            color: #181F2A !important;
+            box-shadow: 0 12px 36px #FFD70077;
+            transform: translateY(-3px) scale(1.04);
+        }
+        .avatar-glow, .ant-avatar {
+            border: 2.5px solid #FFD700 !important;
+            box-shadow: 0 0 24px #FFD70099, 0 0 0 6px #FFD70022;
+            background: #232b3e !important;
+        }
+        .glass-stat-card-grid {
+            display: flex;
+            gap: 40px;
+            justify-content: space-between;
+            margin: 48px 0 40px 0;
+            flex-wrap: wrap;
+        }
+        .glass-stat-card {
+            flex: 1 1 0%;
+            min-width: 0;
+            max-width: none;
+            background: linear-gradient(135deg, #232B3E 60%, #222a3a 100%);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px #181F2A44, 0 0 0 2px #FFD70033;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 40px 28px;
+            margin-bottom: 18px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(.4,2,.6,1);
+            box-sizing: border-box;
+        }
+        @media (max-width: 900px) {
+            .glass-stat-card-grid { gap: 16px; }
+            .glass-stat-card { padding: 18px 8px; min-width: 120px; border-radius: 10px; }
+        }
+        .glass-stat-card:hover {
+            box-shadow: 0 16px 64px 0 #FFD70044, 0 0 0 3px #FFD700;
+            border-color: #FFD700;
+            transform: translateY(-6px) scale(1.03);
+        }
+        .glass-stat-label { color: #b0c4e6; font-size: 1.15rem; margin-bottom: 10px; font-weight: 600; }
+        .glass-stat-value {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            word-break: break-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .glass-stat-sub { color: #ffd700; font-size: 1.1rem; margin-top: 8px; font-weight: 700; }
+        .glass-stat-unit { font-size: 1.1rem; margin-left: 4px; color: #b0c4e6; }
+        .ant-table { background: transparent !important; color: #fff; border-radius: 16px; overflow: hidden; }
+        .ant-table-thead > tr > th { background: #232e4a !important; color: #FFD700 !important; font-weight: 900; font-size: 1.1rem; border-bottom: 2.5px solid #FFD700; text-align: center; letter-spacing: 1px; }
+        .ant-table-tbody > tr > td { background: transparent !important; color: #fff; font-size: 1.05rem; border-bottom: 1.5px solid #2e3c5d !important; text-align: center; font-weight: 600; }
+        .ant-table-tbody > tr:hover > td { background: #232b3e !important; }
+        .ant-tag { border-radius: 10px !important; font-weight: 900; font-size: 1.05rem; padding: 2px 16px; letter-spacing: 1px; }
+        .ant-progress-bg { border-radius: 8px !important; }
+        .ant-btn-link { color: #FFD700 !important; font-weight: 900; }
+        .ant-btn-link:hover { color: #FFB300 !important; }
+        .flex-row { display: flex; flex-wrap: wrap; gap: 40px; }
+        .flex-col { display: flex; flex-direction: column; gap: 18px; }
+        .mb-32 { margin-bottom: 32px; }
+        .mb-24 { margin-bottom: 24px; }
+        .mb-16 { margin-bottom: 16px; }
+        .mt-24 { margin-top: 24px; }
+        .center { text-align: center; }
+        .w-100 { width: 100%; }
+        .card {
+            background: linear-gradient(135deg, #232B3E 60%, #222a3a 100%);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px #181F2A33, 0 0 0 2px #FFD70022;
+            border: 1.5px solid rgba(255, 255, 255, 0.10);
+            color: #fff;
+            padding: 36px 28px;
+            margin-bottom: 28px;
+            transition: all 0.3s cubic-bezier(.4,2,.6,1);
+        }
+        .card:hover {
+            box-shadow: 0 16px 64px 0 #FFD70044, 0 0 0 3px #FFD700;
+            border-color: #FFD700;
+            transform: translateY(-6px) scale(1.03);
+        }
+        .progress-bar { background: linear-gradient(90deg,#FFD700 0%,#FFB300 100%); height: 10px; border-radius: 8px; box-shadow: 0 2px 8px #FFD70033; }
+        .progress-labels { display: flex; justify-content: space-between; color: #b0c4e6; font-size: 1.05rem; margin-top: 10px; font-weight: 600; }
+        /* 福利卡片优化 */
+        .benefit-card { box-shadow: 0 8px 32px #FFD70022, 0 0 0 2px #FFD70022; border: 1.5px solid #FFD70033; background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%); }
+        .benefit-card:hover { box-shadow: 0 16px 64px 0 #FFD70044, 0 0 0 3px #FFD700; border-color: #FFD700; transform: translateY(-6px) scale(1.04); }
+        .benefit-card img { filter: drop-shadow(0 0 8px #FFD70088); }
+        /* 响应式福利卡片 */
+        @media (max-width: 1200px) { .benefit-card { min-width: 45% !important; max-width: 48% !important; margin-bottom: 24px; } .flex-row { gap: 24px; } }
+        @media (max-width: 700px) { .benefit-card { min-width: 98% !important; max-width: 100% !important; height: auto !important; } .flex-row { gap: 12px; } }
+        /* 分割线 */
+        .divider { height: 1.5px; background: linear-gradient(90deg,#FFD70022 0%,#FFD70088 50%,#FFD70022 100%); border: none; margin: 40px 0; }
+        /* 福利卡片高端升级 */
+        .benefit-row { gap: 48px !important; }
+        .benefit-card {
+            background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+            box-shadow: 0 12px 48px #FFD70033, 0 0 0 3px #FFD70033;
+            border: 2.5px solid #FFD70044;
+            border-radius: 32px;
+            transition: all 0.35s cubic-bezier(.4,2,.6,1);
+            position: relative;
+            min-width: 260px;
+            aspect-ratio: 1/1;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .benefit-card:hover {
+            box-shadow: 0 24px 64px 0 #FFD70077, 0 0 0 5px #FFD700;
+            border-color: #FFD700;
+            transform: translateY(-10px) scale(1.06);
+            z-index: 2;
+        }
+        .benefit-card img {
+            filter: drop-shadow(0 0 16px #FFD70088);
+        }
+        @media (max-width: 1200px) {
+            .benefit-row { gap: 24px !important; }
+            .benefit-card { min-width: 48% !important; max-width: 48% !important; margin-bottom: 24px; }
+        }
+        @media (max-width: 900px) {
+            .benefit-row { gap: 16px !important; }
+            .benefit-card { min-width: 98% !important; max-width: 100% !important; margin-bottom: 18px; }
+        }
+        /* 高端表格升级 */
+        .vip-table {
+            width: 100%;
+            min-width: 900px;
+            table-layout: auto;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            background: rgba(24, 31, 42, 0.98);
+        }
+        .vip-table th, .vip-table td {
+            padding: 10px 6px; /* 更紧凑 */
+            font-size: 1rem;
+            text-align: center;
+            /* max-width: 120px; */
+            /* white-space: nowrap; */
+            /* overflow: hidden; */
+            /* text-overflow: ellipsis; */
+        }
+        .vip-table th {
+            background: #232e4a;
+            color: #FFD700;
+            font-weight: 900;
+            font-size: 1.1rem;
+            border-bottom: 2.5px solid #FFD700;
+        }
+        .vip-table td {
+            background: #232b3e;
+        }
+        .vip-table tr:hover td {
+            background: #FFD70022;
+            color: #232B3E;
+        }
+        @media (max-width: 900px) {
+            .vip-table {
+                min-width: 900px !important;
+                font-size: 0.98rem;
+                border-radius: 8px;
+            }
+            .vip-table th, .vip-table td {
+                padding: 8px 4px !important;
+                font-size: 0.98rem !important;
+                max-width: unset !important;
+                overflow: visible !important;
+                text-overflow: unset !important;
+                white-space: normal !important;
+            }
+        }
+        /* 去除表格外层横向滚动 */
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 2px;
+            margin: 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            background: none;
+            width: 100%;
+            max-width: 100%;
+        }
+        .vip-table tbody tr {
+            border-radius: 8px;
+            margin-bottom: 6px;
+            box-shadow: 0 2px 8px #FFD70011;
+        }
+        .vip-table tbody tr:nth-child(even) td {
+            background: #1a2233 !important;
+        }
+        .vip-table tbody tr:hover td {
+            background: #FFD70022 !important;
+            color: #232B3E !important;
+        }
+        @media (max-width: 900px) {
+            .vip-table { min-width: 900px; }
+            .vip-table th, .vip-table td { padding: 8px 4px; font-size: 0.98rem; }
+        }
+        @media (max-width: 600px) {
+            .vip-table { min-width: 900px; }
+            .vip-table th, .vip-table td { padding: 10px 6px; font-size: 0.98rem; }
+        }
+        .vip-table thead tr th {
+            background: linear-gradient(90deg,#232e4a 0%,#181F2A 100%) !important;
+            color: #FFD700 !important;
+            font-weight: 900;
+            font-size: 1.18rem;
+            border-bottom: 3px solid #FFD700;
+            text-align: center;
+            letter-spacing: 1px;
+            padding: 18px 0;
+        }
+        .vip-table tbody tr {
+            background: rgba(24,31,42,0.92) !important;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .vip-table tbody tr:nth-child(even) {
+            background: rgba(35,43,62,0.98) !important;
+        }
+        .vip-table tbody tr:hover {
+            background: #232b3e !important;
+        }
+        .vip-table td {
+            color: #fff;
+            font-size: 1.12rem;
+            font-weight: 700;
+            border-bottom: 1.5px solid #2e3c5d !important;
+            text-align: center;
+            padding: 16px 0;
+        }
+        @media (min-width: 1200px) {
+            .benefit-row { gap: 56px !important; }
+            .benefit-card { min-width: 340px !important; max-width: 24% !important; height: 340px !important; }
+        }
+        @media (max-width: 1199px) {
+            .benefit-row { gap: 24px !important; }
+            .benefit-card { min-width: 48% !important; max-width: 48% !important; height: 320px !important; }
+        }
+        @media (max-width: 900px) {
+            .benefit-row { gap: 16px !important; }
+            .benefit-card { min-width: 98% !important; max-width: 100% !important; height: auto !important; }
+        }
+        /* VIP福利卡片网格布局 */
+        .vip-benefit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        /* VIP福利卡片样式 */
+        .vip-benefit-card {
+            background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1.5px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .vip-benefit-card:hover {
+            transform: translateY(-8px);
+            border-color: #FFD700;
+            box-shadow: 0 16px 48px rgba(255, 215, 0, 0.15);
+        }
+
+        .benefit-icon-wrapper {
+            margin-bottom: 24px;
+            display: inline-block;
+            padding: 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 50%;
+        }
+
+        .benefit-title {
+            color: #FFD700;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .benefit-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .benefit-list li {
+            color: #b0c4e6;
+            margin-bottom: 12px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .benefit-list li:before {
+            content: "•";
+            color: #FFD700;
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+        }
+
+        /* 会员协议部分样式 */
+        .vip-agreement-section {
+            background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin-top: 48px;
+            border: 1.5px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .agreement-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .agreement-title {
+            color: #FFD700;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .agreement-desc {
+            color: #b0c4e6;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .agreement-table-section {
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .table-title {
+            color: #FFD700;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 8px;
+            margin: 0 auto;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            background: none;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .vip-table {
+            width: 100%;
+            min-width: 1440px;
+            table-layout: auto;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            background: rgba(24, 31, 42, 0.98);
+        }
+
+        .vip-table th {
+            background: linear-gradient(90deg, #232e4a 0%, #181F2A 100%);
+            color: #FFD700;
+            font-weight: 700;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #FFD700;
+        }
+
+        .vip-table td {
+            padding: 16px 20px;
+            text-align: center;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .vip-table tr:hover td {
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .member-level {
+            color: #FFD700;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .highlight {
+            color: #FFD700;
+            font-weight: 700;
+        }
+
+        .agreement-footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .view-agreement-btn {
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%);
+            color: #181F2A;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 24px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-agreement-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .vip-benefit-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .vip-benefit-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vip-agreement-section {
+                padding: 24px;
+            }
+
+            .agreement-title {
+                font-size: 1.5rem;
+            }
+
+            .table-title {
+                font-size: 1.2rem;
+            }
+            .card-title {
+                font-size: 1.3rem;
+                margin-bottom: 18px;
+            }
+            .section {
+                padding: 12px 2px;
+                margin-bottom: 12px;
+                border-radius: 10px;
+            }
+            .card {
+                padding: 16px 8px;
+                border-radius: 10px;
+            }
+            .glass-stat-card {
+                padding: 18px 8px;
+                min-width: 120px;
+                border-radius: 10px;
+            }
+            .glass-stat-label, .glass-stat-value, .glass-stat-sub {
+                font-size: 0.98rem;
+            }
+            .benefit-title {
+                font-size: 1.1rem;
+            }
+            .benefit-list li {
+                font-size: 0.98rem;
+            }
+            .vip-benefit-card {
+                padding: 16px 8px;
+                border-radius: 10px;
+            }
+            .vip-agreement-section {
+                border-radius: 10px;
+            }
+            .agreement-header {
+                margin-bottom: 18px;
+            }
+            .agreement-table-section {
+                margin-bottom: 18px;
+            }
+            .table-wrapper {
+                padding: 0 2px;
+                border-radius: 8px;
+                min-width: unset;
+                max-width: 100vw;
+                overflow-x: auto;
+            }
+            .vip-table {
+                font-size: 0.98rem;
+                min-width: 600px;
+                border-radius: 8px;
+            }
+            .vip-table th, .vip-table td {
+                padding: 8px 4px;
+            }
+            .view-agreement-btn, .styled-button {
+                width: 100%;
+                margin-bottom: 10px;
+                font-size: 1rem;
+                padding: 10px 0;
+            }
+            #trade-record-pagination {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .section, .table-wrapper {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
+            .card-title {
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .vip-table {
+                font-size: 0.92rem;
+                min-width: 480px;
+            }
+            .card-title, .agreement-title {
+                font-size: 1.1rem;
+            }
+            .glass-stat-label, .glass-stat-value, .glass-stat-sub {
+                font-size: 0.92rem;
+            }
+        }
+        .trade-type-table.buy {
+            background: #00ffae22;
+            color: #00ffae;
+            border: 1.5px solid #00ffae;
+            border-radius: 12px;
+            padding: 2px 14px;
+            font-weight: 700;
+        }
+        .trade-type-table.sell {
+            background: #cf132222;
+            color: #cf1322;
+            border: 1.5px solid #cf1322;
+            border-radius: 12px;
+            padding: 2px 14px;
+            font-weight: 700;
+        }
+        .trade-profit-table.up {
+            color: #00ffae;
+            font-weight: 900;
+        }
+        .trade-profit-table.down {
+            color: #cf1322;
+            font-weight: 900;
+        }
+        /* 移动端会员权益对比卡片样式 */
+        .agreement-mobile-cards { display: none; }
+        @media (max-width: 768px) {
+            .agreement-table-pc { display: none !important; }
+            .agreement-mobile-cards { display: block; margin-top: 12px; }
+            .mobile-card-list { display: flex; flex-direction: column; gap: 16px; }
+            .mobile-card {
+                background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+                border-radius: 14px;
+                box-shadow: 0 4px 16px #181F2A33, 0 0 0 2px #FFD70022;
+                border: 1.5px solid rgba(255, 215, 0, 0.08);
+                padding: 18px 16px 12px 16px;
+            }
+            .mobile-card-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 10px;
+            }
+            .mobile-card-title {
+                color: #b0c4e6;
+                font-size: 1.05rem;
+                font-weight: 600;
+            }
+            .mobile-card-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 0;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
+                font-size: 1.02rem;
+            }
+            .mobile-card-row:last-child { border-bottom: none; }
+        }
+        .mobile-card {
+            background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px #181F2A33, 0 0 0 2px #FFD70022;
+            border: 1.5px solid rgba(255, 215, 0, 0.12);
+            padding: 18px 16px 14px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mobile-card-badge-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .mobile-badge {
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 900;
+            padding: 6px 18px;
+            border-radius: 20px;
+            color: #fff;
+            box-shadow: 0 0 12px #FFD70055;
+            letter-spacing: 1px;
+        }
+        .mobile-badge.vip { background: linear-gradient(90deg,#FFD700 60%,#FFB300 100%); color: #232B3E; }
+        .mobile-badge.gold { background: linear-gradient(90deg,#ffe066 60%,#FFD700 100%); color: #232B3E; }
+        .mobile-badge.diamond { background: linear-gradient(90deg,#b0c4e6 60%,#FFD700 100%); color: #232B3E; }
+        .mobile-badge.black { background: linear-gradient(90deg,#232B3E 60%,#FFD700 100%); color: #FFD700; border:2px solid #FFD700; }
+        .mobile-card-amount {
+            font-size: 1.08rem;
+            color: #b0c4e6;
+            font-weight: 700;
+            margin-bottom: 8px;
+            margin-left: 2px;
+        }
+        .mobile-card-divider {
+            height: 1.5px;
+            background: linear-gradient(90deg,#FFD70022 0%,#FFD70088 50%,#FFD70022 100%);
+            border: none;
+            margin: 8px 0 10px 0;
+        }
+        .mobile-card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 0;
+        }
+        .mobile-card-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.02rem;
+            color: #fff;
+            font-weight: 600;
+            padding: 2px 0;
+        }
+        .mobile-card-item .icon {
+            font-size: 1.1rem;
+            margin-right: 2px;
+        }
+        .mobile-card-item .highlight {
+            color: #FFD700;
+            font-weight: 900;
+            margin-left: 4px;
+        }
+        .member-rank-mobile-list { display: none; margin-top: 10px; }
+        .member-rank-mobile-card {
+            background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+            border-radius: 14px;
+            box-shadow: 0 4px 16px #181F2A33, 0 0 0 2px #FFD70022;
+            border: 1.5px solid rgba(255, 215, 0, 0.10);
+            padding: 12px 12px 8px 12px;
+            margin-bottom: 12px;
+        }
+        .member-rank-mobile-card .rank-row {
+            display: flex;
+            align-items: center;
+        }
+        .member-rank-mobile-card .rank-row-main {
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .member-rank-mobile-card .rank-row-bottom {
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .member-rank-mobile-card .rank-num {
+            font-size: 1.18rem;
+            font-weight: 900;
+            color: #FFD700;
+            min-width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .member-rank-mobile-card .rank-avatar {
+            width: 28px; height: 28px; border-radius: 50%; background: #232b3e; color: #FFD700; font-weight: 900; text-align: center; line-height: 28px; font-size: 1.08rem; box-shadow: 0 0 6px #FFD70033; flex-shrink: 0;
+        }
+        .member-rank-mobile-card .rank-name {
+            color: #fff; font-weight: 700; font-size: 1.05rem; margin: 0 4px; white-space:nowrap; flex: 1 1 0%; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+        }
+        .member-rank-mobile-card .rank-level {
+            font-size: 0.98rem; font-weight: 700; border-radius: 10px; padding: 2px 14px; margin-left: 0; flex-shrink: 0;
+            width: 80px; min-width: 80px; max-width: 80px; text-align: center; display: inline-block;
+        }
+        .member-rank-mobile-card .rank-level.vip { background: #FFD700; color: #232B3E; }
+        .member-rank-mobile-card .rank-level.gold { background: #ffe066; color: #232B3E; }
+        .member-rank-mobile-card .rank-level.diamond { background: #b0c4e6; color: #232B3E; }
+        .member-rank-mobile-card .rank-level.black { background: #232B3E; color: #FFD700; border:1.5px solid #FFD700; }
+        .member-rank-mobile-card .rank-rate {
+            color: #00ffae; font-weight: 900; font-size: 1.13rem; min-width: 60px; text-align: right; flex-shrink: 0;
+        }
+        .member-rank-mobile-card .rank-amount {
+            color: #FFD700; font-weight: 900; font-size: 1.13rem; min-width: 80px; text-align: right; flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .member-rank-table-pc { display: none !important; }
+            .member-rank-mobile-list { display: block; }
+        }
+        .trade-record-header-flex {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .trade-record-summary {
+            color: #b0c4e6;
+            font-size: 1.05rem;
+            margin-bottom: 0;
+            margin-top: 2px;
+        }
+        .trade-record-toggle-btn-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0 8px 0;
+        }
+        .trade-toggle-btn {
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%);
+            color: #232B3E;
+            border: none;
+            border-radius: 22px;
+            font-weight: 900;
+            font-size: 1.08rem;
+            padding: 8px 36px;
+            box-shadow: 0 4px 16px #FFD70033;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s;
+        }
+        .trade-toggle-btn:hover {
+            background: linear-gradient(90deg, #FFE066 0%, #FFD700 100%);
+            box-shadow: 0 8px 24px #FFD70055;
+            transform: translateY(-2px) scale(1.03);
+        }
+        .trade-record-detail {
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(.4,2,.6,1), opacity 0.25s;
+            max-height: 1200px;
+            opacity: 1;
+        }
+        .trade-record-detail-collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .trade-record-detail-expanded {
+            max-height: 1200px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        @media (max-width: 768px) {
+            .trade-record-header-flex {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+            .trade-record-toggle-btn-wrap {
+                margin: 10px 0 6px 0;
+            }
+            .trade-toggle-btn {
+                width: 100%;
+                font-size: 1.05rem;
+                padding: 10px 0;
+            }
+        }
+        /* 会员收益排名表格"排名"列左对齐 */
+        .member-rank-table-pc table tr td:first-child,
+        .member-rank-table-pc table tr th:first-child {
+            text-align: left !important;
+            padding-left: 24px !important;
+        }
+        .profit-amount-cell {
+            font-weight: bold;
+            font-size: 1.08rem;
+        }
+        .profit-amount-cell.positive { color: #00ffae; }
+        .profit-amount-cell.negative { color: #ff4d4f; }
+        .profit-amount-cell.zero { color: #ffd700; }
+        .rank-row:hover {
+            background: linear-gradient(90deg,#FFD70022 0%,#fffbe6 100%) !important;
+            box-shadow: 0 2px 12px #FFD70033;
+            transition: all 0.2s;
+        }
+        .ratio-badge {
+          display: inline-block;
+          min-width: 32px;
+          padding: 2px 8px;
+          background: linear-gradient(90deg, #FFD700 60%, #FFB300 100%);
+          color: #232B3E;
+          font-weight: 900;
+          font-size: 1rem;
+          border-radius: 14px;
+          text-align: center;
+          box-shadow: 0 2px 8px #FFD70033;
+          letter-spacing: 1px;
+        }
+        .membership-badge {
+            display: inline-block;
+            padding: 3px 18px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .membership-badge.gold-member {
+            background: linear-gradient(90deg,#FFD700,#FFB300);
+            color: #232B3E;
+        }
+        .membership-badge.diamond-member {
+            background: linear-gradient(90deg,#b0c4e6,#fff);
+            color: #232B3E;
+        }
+        .membership-badge.black-card-member {
+            background: linear-gradient(90deg,#232B3E,#FFD700);
+            color: #FFD700;
+            border: 1.5px solid #FFD700;
+        }
+        .membership-badge.regular-member {
+            background: #eee;
+            color: #232B3E;
+        }
+        /* 移动端会员收益排名卡片样式 */
+        @media (max-width: 768px) {
+          .member-rank-mobile-list {
+            display: block;
+            margin-top: 10px;
+          }
+          .member-rank-mobile-card {
+            background: #232e4a;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            padding: 16px 12px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .rank-row-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+          }
+          .rank-num {
+            font-size: 1.3em;
+            font-weight: bold;
+            width: 28px;
+            text-align: center;
+          }
+          .rank-avatar {
+            border-radius: 50%;
+            border: 2px solid #b0c4e6;
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+          }
+          .rank-name {
+            font-weight: 500;
+            flex: 1;
+            margin-left: 6px;
+          }
+          .rank-level {
+            font-size: 0.95em;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: #1a2236;
+            margin-left: 4px;
+          }
+          .rank-row-bottom {
+            font-size: 1.05em;
+            justify-content: space-between;
+            margin-top: 2px;
+          }
+        }
+        @media (min-width: 769px) {
+          .member-rank-mobile-list { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .agreement-table-pc { display: none !important; }
+          .agreement-mobile-cards { display: block !important; }
+        }
+        @media (min-width: 769px) {
+          .agreement-mobile-cards { display: none !important; }
+        }
+        .mobile-card-label {
+          display: inline-block;
+          min-width: 140px;
+          color: #FFD700;
+          font-weight: 700;
+          text-align: left;
+        }
+        .mobile-card-value {
+          color: #FFD700;
+          font-weight: 900;
+          margin-left: 8px;
+        }
+        @media (max-width: 768px) {
+          .agreement-table-pc { display: none !important; }
+          .agreement-mobile-cards { display: block !important; }
+        }
+        @media (min-width: 769px) {
+          .agreement-mobile-cards { display: none !important; }
+        }
+        .agreement-mobile-cards {
+          margin-top: 24px;
+        }
+        .mobile-section-title {
+          font-size: 1.35rem;
+          font-weight: 900;
+          color: #FFD700;
+          margin-bottom: 12px;
+          margin-top: 24px;
+          letter-spacing: 1px;
+          text-align: left;
+          border-bottom: 2.5px solid #FFD700;
+          padding-bottom: 4px;
+        }
+        .mobile-card-list {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+        .mobile-card {
+          background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+          border-radius: 18px;
+          box-shadow: 0 4px 16px #181F2A33, 0 0 0 2px #FFD70022;
+          border: 1.5px solid rgba(255,215,0,0.10);
+          padding: 18px 16px 14px 16px;
+          position: relative;
+          overflow: hidden;
+        }
+        .mobile-badge-row {
+          margin-bottom: 10px;
+          text-align: left;
+        }
+        .mobile-badge {
+          display: inline-block;
+          font-size: 1.1rem;
+          font-weight: 900;
+          padding: 6px 18px;
+          border-radius: 20px;
+          color: #232B3E;
+          background: linear-gradient(90deg,#FFD700 60%,#FFB300 100%);
+          box-shadow: 0 0 12px #FFD70055;
+          letter-spacing: 1px;
+        }
+        .mobile-badge.gold { background: linear-gradient(90deg,#ffe066 60%,#FFD700 100%); color: #232B3E; }
+        .mobile-badge.diamond { background: linear-gradient(90deg,#b0c4e6 60%,#FFD700 100%); color: #232B3E; }
+        .mobile-badge.black { background: linear-gradient(90deg,#232B3E 60%,#FFD700 100%); color: #FFD700; border:2px solid #FFD700; }
+        .mobile-info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 8px 0;
+        }
+        .mobile-info-label {
+          color: #b0c4e6;
+          font-size: 1.05rem;
+          font-weight: 700;
+        }
+        .mobile-info-value {
+          color: #FFD700;
+          font-size: 1.08rem;
+          font-weight: 900;
+          margin-left: 12px;
+        }
+        @media (max-width: 768px) {
+          .agreement-table-pc { display: none !important; }
+          .agreement-mobile-cards { display: block !important; }
+        }
+        @media (min-width: 769px) {
+          .agreement-mobile-cards { display: none !important; }
+        }
+        .member-rank-table-pc th {
+          font-size: 1.18rem;
+          font-weight: 900;
+          color: #FFD700;
+          background: #232e4a;
+          border-bottom: 3px solid #FFD700;
+          text-align: center;
+          letter-spacing: 1px;
+          padding: 18px 0;
+        }
+        .member-rank-table-pc td {
+          font-size: 1.08rem;
+          font-weight: 700;
+          color: #fff;
+          background: #232b3e;
+          text-align: center;
+          padding: 12px 0;
+        }
+        .member-rank-table-pc .membership-badge {
+          display: inline-block;
+          font-size: 1.08rem;
+          font-weight: 900;
+          padding: 6px 18px;
+          border-radius: 20px;
+          margin-right: 8px;
+          background: linear-gradient(90deg,#FFD700 60%,#FFB300 100%);
+          color: #232B3E;
+          box-shadow: 0 0 12px #FFD70055;
+          letter-spacing: 1px;
+        }
+        .member-rank-table-pc .membership-badge.gold-member { background: linear-gradient(90deg,#ffe066 60%,#FFD700 100%); color: #232B3E; }
+        .member-rank-table-pc .membership-badge.diamond-member { background: linear-gradient(90deg,#b0c4e6 60%,#FFD700 100%); color: #232B3E; }
+        .member-rank-table-pc .membership-badge.supreme-black-card { background: linear-gradient(90deg,#232B3E 60%,#FFD700 100%); color: #FFD700; border:2px solid #FFD700; }
+        .member-rank-table-pc .membership-badge.regular-member { background: #eee; color: #232B3E; }
+        /* 紧凑会员协议表格样式 */
+        .vip-table {
+            min-width: unset !important;
+            max-width: 100% !important;
+            table-layout: fixed;
+            font-size: 0.98rem;
+        }
+        .vip-table th, .vip-table td {
+            padding: 6px 4px !important;
+            font-size: 0.98rem !important;
+            white-space: nowrap;
+        }
+        .vip-table th {
+            font-size: 1.05rem !important;
+        }
+        /* 投资公告与策略（美化版） */
+        .announcement-card {
+          background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+          border-radius: 20px;
+          box-shadow: 0 4px 24px #181F2A33, 0 0 0 2px #FFD70022;
+          border: 1.5px solid rgba(255,215,0,0.10);
+          padding: 28px 24px 20px 24px;
+          margin-bottom: 28px;
+          position: relative;
+          color: #fff;
+          transition: box-shadow 0.2s;
+        }
+        .announcement-card:hover {
+          box-shadow: 0 8px 32px #FFD70044, 0 0 0 3px #FFD700;
+        }
+        .announcement-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          margin-bottom: 12px;
+        }
+        .announcement-title {
+          font-size: 1.35rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 1px;
+          flex: 1;
+        }
+        .priority-badge {
+          font-size: 0.98rem;
+          font-weight: 900;
+          border-radius: 14px;
+          padding: 4px 18px;
+          margin-left: 12px;
+          box-shadow: 0 2px 8px #FFD70033;
+          letter-spacing: 1px;
+          position: relative;
+          top: 0;
+          right: 0;
+          display: inline-block;
+        }
+        .priority-high { background: linear-gradient(90deg,#ff4d4f 60%,#ffb300 100%); color: #fff; }
+        .priority-medium { background: linear-gradient(90deg,#faad14 60%,#ffd700 100%); color: #232B3E; }
+        .priority-low { background: linear-gradient(90deg,#00ffae 60%,#b0c4e6 100%); color: #232B3E; }
+        .announcement-content {
+          font-size: 1.08rem;
+          color: #b0c4e6;
+          margin-bottom: 18px;
+          line-height: 1.7;
+          word-break: break-all;
+        }
+        .announcement-meta {
+          font-size: 0.98rem;
+          color: #b0c4e6;
+          display: flex;
+          gap: 24px;
+          justify-content: flex-end;
+          align-items: center;
+        }
+        .vip-trade-cards-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 28px;
+          justify-content: flex-start;
+        }
+        .vip-trade-card {
+          background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+          border-radius: 20px;
+          box-shadow: 0 8px 32px #181F2A33, 0 0 0 2px #FFD70022;
+          border: 1.5px solid rgba(255, 255, 255, 0.10);
+          color: #fff;
+          padding: 28px 22px 18px 22px;
+          min-width: 320px;
+          max-width: 370px;
+          flex: 1 1 320px;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 8px;
+          transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .vip-trade-card:hover {
+          box-shadow: 0 16px 64px 0 #FFD70044, 0 0 0 3px #FFD700;
+          border-color: #FFD700;
+          transform: translateY(-6px) scale(1.03);
+        }
+        .vip-trade-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+        .vip-trade-symbol {
+          font-size: 1.3rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 1px;
+        }
+        .vip-trade-type.buy {
+          background: #00ffae22;
+          color: #00ffae;
+          border: 1.5px solid #00ffae;
+          border-radius: 10px;
+          padding: 2px 14px;
+          font-weight: 700;
+          font-size: 1.05rem;
+        }
+        .vip-trade-type.sell {
+          background: #cf132222;
+          color: #cf1322;
+          border: 1.5px solid #cf1322;
+          border-radius: 10px;
+          padding: 2px 14px;
+          font-weight: 700;
+          font-size: 1.05rem;
+        }
+        .vip-trade-status {
+          margin-left: auto;
+          font-size: 1.05rem;
+          font-weight: 700;
+          padding: 2px 12px;
+          border-radius: 10px;
+          background: #232b3e;
+          border: 1.5px solid #FFD70055;
+          color: #FFD700;
+        }
+        .status-open { background: #232b3e; color: #FFD700; }
+        .status-closed, .status-平仓 { background: #00ffae22; color: #00ffae; border-color: #00ffae; }
+        .status-cancelled, .status-已取消 { background: #cf132222; color: #cf1322; border-color: #cf1322; }
+        .vip-trade-card-body {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .vip-trade-info-group {
+          display: flex;
+          gap: 18px;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .vip-trade-info-group > div {
+          min-width: 120px;
+          font-size: 1.05rem;
+        }
+        .vip-trade-pnl.up, .vip-trade-roi.up { color: #00ffae; font-weight: 900; }
+        .vip-trade-pnl.down, .vip-trade-roi.down { color: #cf1322; font-weight: 900; }
+        @media (max-width: 900px) {
+          .vip-trade-cards-grid { flex-direction: column; gap: 16px; }
+          .vip-trade-card { min-width: 0; max-width: 100%; padding: 18px 8px; border-radius: 10px; }
+          .vip-trade-info-group > div { min-width: 90px; font-size: 0.98rem; }
+        }
+        .vip-trade-cards-premium {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 36px;
+          justify-content: center;
+          margin-bottom: 24px;
+        }
+        .vip-trade-card-premium {
+          background: rgba(24,31,42,0.98);
+          border-radius: 28px;
+          box-shadow: 0 12px 48px 0 #181F2A55, 0 2px 24px #FFD70022;
+          border: 1.5px solid rgba(255,215,0,0.13);
+          color: #fff;
+          padding: 32px 28px 22px 28px;
+          min-width: 360px;
+          max-width: 420px;
+          flex: 1 1 420px;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 8px;
+          transition: box-shadow 0.3s, transform 0.3s;
+          position: relative;
+          overflow: hidden;
+        }
+        @media (min-width: 900px) {
+          .vip-trade-cards-premium {
+            flex-wrap: wrap;
+            justify-content: center;
+          }
+          .vip-trade-card-premium {
+            flex-basis: calc(50% - 36px);
+            margin-left: 0;
+            margin-right: 0;
+          }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-premium { flex-direction: column; gap: 18px; }
+          .vip-trade-card-premium { min-width: 0; max-width: 100%; padding: 18px 8px; border-radius: 14px; }
+          .vip-trade-premium-body { flex-direction: column; gap: 8px; }
+        }
+        .vip-trade-card-premium:before {
+          content: '';
+          position: absolute;
+          top: -60px; left: -60px;
+          width: 180px; height: 180px;
+          background: radial-gradient(circle, #FFD70033 0%, rgba(255,215,0,0) 80%);
+          z-index: 0;
+        }
+        .vip-trade-card-premium-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 10px;
+          z-index: 1;
+        }
+        .vip-trade-symbol-premium {
+          font-size: 1.5rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 1px;
+          text-shadow: 0 2px 8px #FFD70044;
+        }
+        .vip-trade-type-premium.buy {
+          background: #00ffae22;
+          color: #00ffae;
+          border: 1.5px solid #00ffae;
+          border-radius: 12px;
+          padding: 2px 18px;
+          font-weight: 700;
+          font-size: 1.08rem;
+          box-shadow: 0 0 8px #00ffae33;
+        }
+        .vip-trade-type-premium.sell {
+          background: #cf132222;
+          color: #cf1322;
+          border: 1.5px solid #cf1322;
+          border-radius: 12px;
+          padding: 2px 18px;
+          font-weight: 700;
+          font-size: 1.08rem;
+          box-shadow: 0 0 8px #cf132233;
+        }
+        .vip-trade-meta-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 18px;
+          z-index: 1;
+        }
+        .vip-trade-status-premium {
+          font-size: 1.05rem;
+          font-weight: 700;
+          padding: 2px 14px;
+          border-radius: 10px;
+          background: #232b3e;
+          border: 1.5px solid #FFD70055;
+          color: #FFD700;
+          letter-spacing: 1px;
+        }
+        .status-open { background: #232b3e; color: #FFD700; }
+        .status-closed, .status-平仓 { background: #00ffae22; color: #00ffae; border-color: #00ffae; }
+        .status-cancelled, .status-已取消 { background: #cf132222; color: #cf1322; border-color: #cf1322; }
+        .vip-trade-entrytime { color: #b0c4e6; font-size: 1.01rem; display: flex; align-items: center; gap: 4px; }
+        .vip-trade-premium-body {
+          display: flex;
+          flex-direction: row;
+          gap: 32px;
+          margin-bottom: 18px;
+          z-index: 1;
+        }
+        .vip-trade-premium-col {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .vip-label {
+          color: #b0c4e6;
+          font-size: 0.98rem;
+          margin-right: 8px;
+          font-weight: 600;
+        }
+        .vip-value {
+          color: #fff;
+          font-size: 1.08rem;
+          font-weight: 700;
+        }
+        .vip-trade-premium-footer {
+          display: flex;
+          flex-direction: row;
+          gap: 32px;
+          align-items: center;
+          margin-top: 8px;
+          z-index: 1;
+        }
+        .vip-pnl-group, .vip-roi-group {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 2px;
+        }
+        .vip-pnl-label, .vip-roi-label {
+          color: #b0c4e6;
+          font-size: 0.98rem;
+          font-weight: 600;
+        }
+        .vip-pnl-value.up, .vip-roi-value.up {
+          color: #00ffae;
+          font-weight: 900;
+          font-size: 1.25rem;
+          text-shadow: 0 0 8px #00ffae55;
+        }
+        .vip-pnl-value.down, .vip-roi-value.down {
+          color: #cf1322;
+          font-weight: 900;
+          font-size: 1.25rem;
+          text-shadow: 0 0 8px #cf132255;
+        }
+        .vip-trade-cards-wide {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          margin-bottom: 32px;
+          justify-content: space-between;
+        }
+        .vip-trade-card-wide {
+          background: linear-gradient(135deg, #232B3E 60%, #232e4a 100%);
+          border-radius: 28px;
+          box-shadow: 0 8px 32px #181F2A44, 0 0 0 2px #FFD70033;
+          border: 2px solid rgba(255,215,0,0.10);
+          color: #fff;
+          padding: 38px 48px 28px 48px;
+          flex: 1 1 calc(50% - 16px);
+          min-width: 0;
+          max-width: calc(50% - 16px);
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 0;
+          transition: box-shadow 0.3s, transform 0.3s;
+          position: relative;
+          overflow: hidden;
+        }
+        .vip-trade-card-wide:not(:last-child) {
+          margin-right: 0;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-wide { padding: 18px 8px; }
+          .vip-trade-cards-wide { gap: 18px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-wide { flex-direction: column; gap: 18px; }
+          .vip-trade-card-wide { max-width: 100%; flex-basis: 100%; border-radius: 16px; padding: 12px 2vw; }
+        }
+        .vip-trade-cards-lux {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 28px;
+          margin-bottom: 32px;
+          justify-content: space-between;
+        }
+        .vip-trade-card-lux {
+          background: linear-gradient(90deg, rgba(35,43,62,0.92) 60%, rgba(35,46,74,0.92) 100%);
+          border-radius: 36px;
+          box-shadow: 0 4px 32px 0 #FFD70033, 0 0 0 2px #FFD70022;
+          border: 1.5px solid rgba(255,215,0,0.10);
+          color: #fff;
+          padding: 0 38px;
+          min-height: 120px;
+          max-height: 140px;
+          height: 120px;
+          flex: 1 1 calc(50% - 14px);
+          min-width: 0;
+          max-width: calc(50% - 14px);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s;
+          backdrop-filter: blur(6px) saturate(1.2);
+        }
+        .vip-trade-card-lux:before {
+          content: '';
+          position: absolute;
+          left: -60px; top: -60px;
+          width: 180px; height: 180px;
+          background: radial-gradient(circle, #FFD70033 0%, rgba(255,215,0,0) 80%);
+          z-index: 0;
+        }
+        .vip-trade-card-lux:hover {
+          box-shadow: 0 8px 48px 0 #FFD70055, 0 0 0 3px #FFD700;
+          border-color: #FFD700;
+          transform: translateY(-3px) scale(1.01);
+        }
+        .vip-trade-lux-left {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 8px;
+          min-width: 180px;
+          z-index: 1;
+        }
+        .vip-symbol-lux {
+          font-size: 2.1rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 1px;
+          text-shadow: 0 2px 8px #FFD70044;
+          margin-bottom: 2px;
+        }
+        .vip-type-lux {
+          display: inline-block;
+          margin-right: 12px;
+          font-size: 1.08rem;
+          font-weight: 700;
+          padding: 2px 18px;
+          border-radius: 12px;
+          border: 1.5px solid #00ffae;
+          color: #00ffae;
+          background: #00ffae22;
+          box-shadow: 0 0 8px #00ffae33;
+        }
+        .vip-type-lux.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #cf132222;
+          box-shadow: 0 0 8px #cf132233;
+        }
+        .vip-status-lux {
+          display: inline-block;
+          font-size: 1.08rem;
+          font-weight: 700;
+          padding: 2px 14px;
+          border-radius: 10px;
+          background: #232b3e;
+          border: 1.5px solid #FFD70055;
+          color: #FFD700;
+          margin-left: 8px;
+        }
+        .vip-trade-lux-right {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 8px;
+          align-items: flex-end;
+          z-index: 1;
+        }
+        .vip-lux-row {
+          display: flex;
+          flex-direction: row;
+          gap: 38px;
+          align-items: center;
+        }
+        .vip-label-lux {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 600;
+          margin-right: 4px;
+        }
+        .vip-value-lux {
+          color: #fff;
+          font-size: 1.18rem;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 12px;
+        }
+        .vip-pnl-lux, .vip-roi-lux {
+          font-size: 1.7rem;
+          font-weight: 900;
+          margin-left: 12px;
+          text-shadow: 0 0 8px #00ffae55;
+        }
+        .vip-pnl-lux.up, .vip-roi-lux.up { color: #00ffae; }
+        .vip-pnl-lux.down, .vip-roi-lux.down { color: #cf1322; text-shadow: 0 0 8px #cf132255; }
+        .vip-lux-meta {
+          color: #b0c4e6;
+          font-size: 1.01rem;
+          font-weight: 500;
+          margin-top: 2px;
+          text-align: right;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-lux { padding: 0 8px; }
+          .vip-trade-cards-lux { gap: 14px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-lux { flex-direction: column; gap: 14px; }
+          .vip-trade-card-lux { max-width: 100%; flex-basis: 100%; border-radius: 18px; height: auto; min-height: 90px; }
+          .vip-trade-lux-right { align-items: flex-start; }
+        }
+        .vip-trade-cards-prolux {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 36px;
+          margin-bottom: 40px;
+          justify-content: space-between;
+        }
+        .vip-trade-card-prolux {
+          background: linear-gradient(120deg, rgba(35,43,62,0.92) 70%, rgba(35,46,74,0.96) 100%);
+          border-radius: 0;
+          box-shadow: 0 0 48px 0 #FFD70033, 0 0 0 2px #FFD70022;
+          border: 2px solid rgba(255,215,0,0.18);
+          color: #fff;
+          padding: 0;
+          min-height: 200px;
+          max-height: 240px;
+          flex: 1 1 calc(50% - 18px);
+          min-width: 0;
+          max-width: calc(50% - 18px);
+          display: flex;
+          align-items: stretch;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s;
+          backdrop-filter: blur(10px) saturate(1.18);
+          animation: card-glow-breath 2.8s infinite alternate;
+        }
+        @keyframes card-glow-breath {
+          0% { box-shadow: 0 0 48px 0 #FFD70033, 0 0 0 2px #FFD70022; }
+          100% { box-shadow: 0 0 80px 12px #FFD70077, 0 0 0 4px #FFD70044; }
+        }
+        .vip-trade-card-prolux:before { display: none; }
+        .vip-trade-card-prolux:hover {
+          box-shadow: 0 0 120px 24px #FFD70099, 0 0 0 4px #FFD700;
+          border-color: #FFD700;
+          transform: translateY(-4px) scale(1.01);
+        }
+        .vip-prolux-left {
+          flex: 0 0 180px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #232B3E 60%, #FFD70022 100%);
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          position: relative;
+          z-index: 1;
+          min-width: 160px;
+          max-width: 200px;
+          padding: 0 24px;
+        }
+        .vip-prolux-symbol {
+          font-size: 2.6rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 16px #FFD70077;
+          margin-bottom: 12px;
+          margin-top: 8px;
+        }
+        .vip-prolux-tags {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+        .vip-prolux-type {
+          font-size: 1.15rem;
+          font-weight: 700;
+          padding: 4px 28px;
+          border-radius: 16px;
+          border: 2px solid #00ffae;
+          color: #00ffae;
+          background: #00ffae22;
+          box-shadow: 0 0 12px #00ffae33;
+          margin-bottom: 2px;
+        }
+        .vip-prolux-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #cf132222;
+          box-shadow: 0 0 12px #cf132233;
+        }
+        .vip-prolux-status {
+          font-size: 1.08rem;
+          font-weight: 700;
+          padding: 2px 18px;
+          border-radius: 12px;
+          background: #232b3e;
+          border: 2px solid #FFD70055;
+          color: #FFD700;
+          margin-top: 2px;
+        }
+        .vip-prolux-glowdot { display: none; }
+        .vip-prolux-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 18px;
+          padding: 28px 36px 28px 24px;
+          z-index: 1;
+          min-width: 0;
+          overflow-x: auto;
+        }
+        .vip-prolux-row {
+          display: flex;
+          flex-direction: row;
+          gap: 44px;
+          align-items: center;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .vip-prolux-label {
+          color: #b0c4e6;
+          font-size: 1.08rem;
+          font-weight: 600;
+          margin-right: 4px;
+        }
+        .vip-prolux-value {
+          color: #fff;
+          font-size: 1.22rem;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        .vip-prolux-pnl, .vip-prolux-roi {
+          font-size: 2.1rem;
+          font-weight: 900;
+          margin-left: 12px;
+          text-shadow: 0 0 16px #00ffae55;
+        }
+        .vip-prolux-pnl.up, .vip-prolux-roi.up { color: #00ffae; }
+        .vip-prolux-pnl.down, .vip-prolux-roi.down { color: #cf1322; text-shadow: 0 0 16px #cf132255; }
+        .vip-prolux-meta {
+          color: #b0c4e6;
+          font-size: 1.05rem;
+          font-weight: 500;
+          margin-bottom: 6px;
+          text-align: right;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-prolux { padding: 0; }
+          .vip-trade-cards-prolux { gap: 14px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-prolux { flex-direction: column; gap: 14px; }
+          .vip-trade-card-prolux { max-width: 100%; flex-basis: 100%; border-radius: 0; height: auto; min-height: 120px; }
+          .vip-prolux-left { min-width: 100px; max-width: 120px; padding: 0 8px; }
+          .vip-prolux-right { padding: 18px 8px 18px 8px; }
+        }
+        .vip-trade-cards-ultimate {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 36px;
+          margin-bottom: 40px;
+          justify-content: space-between;
+        }
+        .vip-trade-card-ultimate {
+          background: linear-gradient(120deg, rgba(35,43,62,0.98) 70%, rgba(35,46,74,0.96) 100%);
+          border-radius: 0;
+          box-shadow: 0 0 64px 0 #FFD70044, 0 0 0 2px #FFD70022;
+          border: 2px solid rgba(255,215,0,0.18);
+          color: #fff;
+          padding: 0;
+          min-height: 180px;
+          max-height: 220px;
+          flex: 1 1 calc(50% - 18px);
+          min-width: 0;
+          max-width: calc(50% - 18px);
+          display: flex;
+          align-items: stretch;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s;
+          backdrop-filter: blur(10px) saturate(1.18);
+          animation: card-glow-breath 2.8s infinite alternate;
+        }
+        @keyframes card-glow-breath {
+          0% { box-shadow: 0 0 64px 0 #FFD70044, 0 0 0 2px #FFD70022; }
+          100% { box-shadow: 0 0 120px 24px #FFD70099, 0 0 0 4px #FFD70044; }
+        }
+        .vip-trade-card-ultimate:hover {
+          box-shadow: 0 0 120px 32px #FFD700cc, 0 0 0 4px #FFD700;
+          border-color: #FFD700;
+          transform: translateY(-4px) scale(1.01);
+        }
+        .vip-ultimate-left {
+          flex: 0 0 200px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          background: linear-gradient(135deg, #232B3E 60%, #FFD70022 100%);
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          position: relative;
+          z-index: 1;
+          min-width: 160px;
+          max-width: 220px;
+          padding: 0 32px;
+          gap: 18px;
+        }
+        .vip-ultimate-symbol {
+          font-size: 2.7rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 18px #FFD70099;
+          margin-bottom: 8px;
+          margin-top: 8px;
+        }
+        .vip-ultimate-tags {
+          display: flex;
+          flex-direction: row;
+          gap: 12px;
+          align-items: center;
+        }
+        .vip-ultimate-type {
+          font-size: 1.18rem;
+          font-weight: 700;
+          padding: 4px 28px;
+          border-radius: 16px;
+          border: 2px solid #00ffae;
+          color: #00ffae;
+          background: #00ffae22;
+          box-shadow: 0 0 12px #00ffae33;
+        }
+        .vip-ultimate-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #cf132222;
+          box-shadow: 0 0 12px #cf132233;
+        }
+        .vip-ultimate-status {
+          font-size: 1.12rem;
+          font-weight: 700;
+          padding: 2px 18px;
+          border-radius: 12px;
+          background: #232b3e;
+          border: 2px solid #FFD70055;
+          color: #FFD700;
+        }
+        .vip-ultimate-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 18px;
+          padding: 32px 36px 32px 24px;
+          z-index: 1;
+          min-width: 0;
+        }
+        .vip-ultimate-row {
+          display: flex;
+          flex-direction: row;
+          gap: 44px;
+          align-items: center;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .vip-ultimate-label {
+          color: #b0c4e6;
+          font-size: 1.08rem;
+          font-weight: 600;
+          margin-right: 4px;
+        }
+        .vip-ultimate-value {
+          color: #fff;
+          font-size: 1.22rem;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        .vip-ultimate-pnl, .vip-ultimate-roi {
+          font-size: 2.1rem;
+          font-weight: 900;
+          margin-left: 12px;
+          text-shadow: 0 0 16px #00ffae55;
+        }
+        .vip-ultimate-pnl.up, .vip-ultimate-roi.up { color: #00ffae; }
+        .vip-ultimate-pnl.down, .vip-ultimate-roi.down { color: #cf1322; text-shadow: 0 0 16px #cf132255; }
+        .vip-ultimate-meta {
+          color: #b0c4e6;
+          font-size: 1.05rem;
+          font-weight: 500;
+          margin-bottom: 6px;
+          text-align: right;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-ultimate { padding: 0; }
+          .vip-trade-cards-ultimate { gap: 14px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-ultimate { flex-direction: column; gap: 14px; }
+          .vip-trade-card-ultimate { max-width: 100%; flex-basis: 100%; border-radius: 0; height: auto; min-height: 120px; }
+          .vip-ultimate-left { min-width: 100px; max-width: 120px; padding: 0 8px; }
+          .vip-ultimate-right { padding: 18px 8px 18px 8px; }
+        }
+        .vip-trade-card-ultimate {
+          max-height: 220px;
+          height: 200px;
+          overflow: visible;
+          display: flex;
+        }
+        .vip-ultimate-left {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          min-width: 140px;
+          max-width: 180px;
+          padding: 0 18px;
+        }
+        .vip-ultimate-symbol {
+          font-size: 2.5rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 18px #FFD70099;
+          margin: 0 0 8px 0;
+        }
+        .vip-ultimate-tags {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          align-items: center;
+        }
+        .vip-ultimate-type, .vip-ultimate-status {
+          width: 80px;
+          min-height: 32px;
+          line-height: 32px;
+          text-align: center;
+          display: block;
+          font-size: 1.08rem;
+        }
+        .vip-ultimate-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 22px 18px 22px 8px;
+          min-width: 0;
+          height: 100%;
+        }
+        .vip-ultimate-meta {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 500;
+          margin-bottom: 0;
+          text-align: left;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .vip-ultimate-row {
+          display: flex;
+          flex-direction: row;
+          gap: 18px;
+          align-items: center;
+          margin-bottom: 0;
+          width: 100%;
+          justify-content: flex-start;
+        }
+        .vip-ultimate-label {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 600;
+          min-width: 44px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-ultimate-value, .vip-ultimate-pnl, .vip-ultimate-roi {
+          color: #fff;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 10px;
+          min-width: 0;
+          max-width: 90px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: clamp(1rem, 2vw, 1.18rem);
+        }
+        .vip-ultimate-pnl, .vip-ultimate-roi {
+          font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+        }
+        .vip-ultimate-pnl.up, .vip-ultimate-roi.up { color: #00ffae; }
+        .vip-ultimate-pnl.down, .vip-ultimate-roi.down { color: #cf1322; text-shadow: 0 0 16px #cf132255; }
+        @media (max-width: 900px) {
+          .vip-trade-card-ultimate { height: auto; min-height: 120px; }
+          .vip-ultimate-left { padding: 0 6px; }
+          .vip-ultimate-right { padding: 10px 4px 10px 4px; }
+          .vip-ultimate-row { gap: 8px; }
+        }
+        .vip-trade-cards-ultimate {
+          overflow: visible !important;
+        }
+        .vip-trade-card-ultimate {
+          max-height: none;
+          height: 200px;
+          overflow: visible !important;
+          display: flex;
+        }
+        .vip-ultimate-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 22px 18px 22px 8px;
+          min-width: 0;
+          height: 100%;
+        }
+        .vip-ultimate-row {
+          display: flex;
+          flex-direction: row;
+          gap: 18px;
+          align-items: center;
+          margin-bottom: 0;
+          width: 100%;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+        .vip-ultimate-label {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 600;
+          min-width: 44px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-ultimate-value, .vip-ultimate-pnl, .vip-ultimate-roi {
+          color: #fff;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 10px;
+          min-width: 0;
+          max-width: 90px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: clamp(1rem, 2vw, 1.18rem);
+        }
+        .vip-ultimate-pnl, .vip-ultimate-roi {
+          font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+        }
+        @media (max-width: 900px) {
+          .vip-trade-card-ultimate { height: auto; min-height: 120px; }
+          .vip-ultimate-left { padding: 0 6px; }
+          .vip-ultimate-right { padding: 10px 4px 10px 4px; }
+          .vip-ultimate-row { gap: 8px; }
+        }
+        .vip-trade-cards-finance {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          margin-bottom: 40px;
+          justify-content: space-between;
+        }
+        .vip-trade-card-finance {
+          background: linear-gradient(120deg, rgba(30,34,48,0.98) 70%, rgba(35,38,58,0.96) 100%);
+          border-radius: 0;
+          box-shadow: 0 0 32px 0 #FFD70044, 0 0 0 2px #FFD70044;
+          border: 2px solid #FFD70055;
+          color: #fff;
+          min-height: 180px;
+          max-height: 220px;
+          flex: 1 1 calc(50% - 16px);
+          min-width: 0;
+          max-width: calc(50% - 16px);
+          display: flex;
+          align-items: stretch;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s;
+          backdrop-filter: blur(10px) saturate(1.12);
+        }
+        .vip-trade-card-finance:hover {
+          box-shadow: 0 0 64px 8px #FFD700cc, 0 0 0 4px #FFD700;
+          border-color: #FFD700;
+          transform: translateY(-2px) scale(1.01);
+        }
+        .vip-finance-left {
+          flex: 0 0 160px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #232B3E 60%, #FFD70022 100%);
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
+          min-width: 120px;
+          max-width: 180px;
+          padding: 0 18px;
+          gap: 18px;
+        }
+        .vip-finance-symbol {
+          font-size: 2.5rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 18px #FFD70099;
+          margin-bottom: 8px;
+          margin-top: 8px;
+        }
+        .vip-finance-tags {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+        .vip-finance-type {
+          font-size: 1.08rem;
+          font-weight: 700;
+          padding: 4px 24px;
+          border-radius: 16px;
+          border: 2px solid #00ffae;
+          color: #00ffae;
+          background: #00ffae22;
+          box-shadow: 0 0 8px #00ffae33;
+        }
+        .vip-finance-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #cf132222;
+          box-shadow: 0 0 8px #cf132233;
+        }
+        .vip-finance-status {
+          font-size: 1.02rem;
+          font-weight: 700;
+          padding: 2px 16px;
+          border-radius: 12px;
+          background: #232b3e;
+          border: 2px solid #FFD70055;
+          color: #FFD700;
+        }
+        .vip-finance-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 12px;
+          padding: 24px 32px 24px 18px;
+          min-width: 0;
+        }
+        .vip-finance-row {
+          display: flex;
+          flex-direction: row;
+          gap: 36px;
+          align-items: center;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .vip-finance-label {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 600;
+          min-width: 48px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-finance-value {
+          color: #fff;
+          font-size: 1.12rem;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        .vip-finance-pnl, .vip-finance-roi {
+          font-size: 1.7rem;
+          font-weight: 900;
+          margin-left: 12px;
+          text-shadow: 0 0 12px #00ffae55;
+        }
+        .vip-finance-pnl.up, .vip-finance-roi.up { color: #00ffae; }
+        .vip-finance-pnl.down, .vip-finance-roi.down { color: #cf1322; text-shadow: 0 0 12px #cf132255; }
+        .vip-finance-meta {
+          color: #b0c4e6;
+          font-size: 1.01rem;
+          font-weight: 500;
+          margin-bottom: 6px;
+          text-align: right;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-finance { padding: 0; }
+          .vip-trade-cards-finance { gap: 12px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-finance { flex-direction: column; gap: 12px; }
+          .vip-trade-card-finance { max-width: 100%; flex-basis: 100%; border-radius: 0; height: auto; min-height: 120px; }
+          .vip-finance-left { min-width: 80px; max-width: 100px; padding: 0 6px; }
+          .vip-finance-right { padding: 12px 6px 12px 6px; }
+          .vip-finance-row { gap: 10px; }
+        }
+        .vip-trade-cards-luxury {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 40px;
+          margin-bottom: 48px;
+          justify-content: flex-start;
+        }
+        .vip-trade-card-luxury {
+          background: rgba(28,32,48,0.82);
+          border-radius: 28px;
+          box-shadow: 0 8px 48px 0 #0e0e1a99, 0 0 0 2.5px #ffd70055;
+          border: 2.5px solid;
+          border-image: linear-gradient(120deg, #ffd700 10%, #00ffe7 90%) 1;
+          color: #fff;
+          min-height: 240px;
+          max-width: 420px;
+          flex: 1 1 380px;
+          display: flex;
+          align-items: stretch;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s, border-image 0.5s;
+          backdrop-filter: blur(18px) saturate(1.18);
+          margin-bottom: 0;
+        }
+        .vip-trade-card-luxury:hover {
+          box-shadow: 0 16px 64px 0 #ffd70066, 0 0 0 4px #ffd700cc;
+          border-image: linear-gradient(90deg, #ffd700 10%, #00ffe7 90%) 1;
+          transform: translateY(-6px) scale(1.025);
+        }
+        .vip-luxury-left {
+          flex: 0 0 120px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #232B3E 60%, #ffd70022 100%);
+          border-top-left-radius: 28px;
+          border-bottom-left-radius: 28px;
+          min-width: 100px;
+          max-width: 140px;
+          padding: 0 18px;
+          gap: 18px;
+        }
+        .vip-luxury-symbol {
+          font-size: 2.7rem;
+          font-weight: 900;
+          color: #ffd700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 18px #ffd70099;
+          margin-bottom: 8px;
+          margin-top: 8px;
+        }
+        .vip-luxury-tags {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+        }
+        .vip-luxury-type {
+          font-size: 1.08rem;
+          font-weight: 700;
+          padding: 4px 24px;
+          border-radius: 16px;
+          border: 2px solid #00ffe7;
+          color: #00ffe7;
+          background: #00ffe722;
+          box-shadow: 0 0 8px #00ffe733;
+        }
+        .vip-luxury-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #cf132222;
+          box-shadow: 0 0 8px #cf132233;
+        }
+        .vip-luxury-status {
+          font-size: 1.02rem;
+          font-weight: 700;
+          padding: 2px 16px;
+          border-radius: 12px;
+          background: #232b3e;
+          border: 2px solid #ffd70055;
+          color: #ffd700;
+        }
+        .vip-luxury-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 18px;
+          padding: 32px 36px 32px 24px;
+          min-width: 0;
+        }
+        .vip-luxury-row {
+          display: flex;
+          flex-direction: row;
+          gap: 36px;
+          align-items: center;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .vip-luxury-pnl {
+          font-size: 2.2rem;
+          font-weight: 900;
+          background: linear-gradient(90deg, #00ffe7 0%, #ffd700 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+          margin-right: 18px;
+        }
+        .vip-luxury-pnl.down {
+          background: linear-gradient(90deg, #cf1322 0%, #ffd700 100%);
+        }
+        .vip-luxury-roi {
+          font-size: 1.4rem;
+          font-weight: 800;
+          background: linear-gradient(90deg, #ffd700 0%, #00ffe7 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+        }
+        .vip-luxury-meta {
+          color: #b0c4e6;
+          font-size: 1.01rem;
+          font-weight: 500;
+          margin-bottom: 6px;
+          text-align: right;
+        }
+        .vip-luxury-label {
+          color: #b0c4e6;
+          font-size: 1.02rem;
+          font-weight: 600;
+          min-width: 48px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-luxury-value {
+          color: #fff;
+          font-size: 1.12rem;
+          font-weight: 900;
+          letter-spacing: 1px;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-luxury { max-width: 48%; flex-basis: 48%; }
+          .vip-trade-cards-luxury { gap: 18px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-luxury { flex-direction: column; gap: 12px; }
+          .vip-trade-card-luxury { max-width: 100%; flex-basis: 100%; border-radius: 18px; min-height: 120px; }
+          .vip-luxury-left { min-width: 70px; max-width: 90px; padding: 0 6px; }
+          .vip-luxury-right { padding: 12px 6px 12px 6px; }
+          .vip-luxury-row { gap: 10px; }
+        }
+        .vip-trade-cards-global {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 32px;
+          margin-bottom: 40px;
+          justify-content: flex-start;
+        }
+        .vip-trade-card-global {
+          background: #fff;
+          border-radius: 20px;
+          box-shadow: 0 8px 32px 0 #e6e6e6, 0 0 0 1.5px #f0f0f0;
+          color: #222;
+          min-height: 220px;
+          max-width: calc(33% - 22px);
+          flex: 1 1 calc(33% - 22px);
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+          padding: 32px 28px 18px 28px;
+          position: relative;
+          transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .vip-trade-card-global:hover {
+          box-shadow: 0 12px 48px 0 #b7e3ff44, 0 0 0 2px #1890ff33;
+          transform: translateY(-2px) scale(1.01);
+        }
+        .vip-global-header {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 18px;
+        }
+        .vip-global-symbol {
+          font-size: 2.1rem;
+          font-weight: 900;
+          color: #222;
+          letter-spacing: 2px;
+        }
+        .vip-global-type {
+          font-size: 1.01rem;
+          font-weight: 700;
+          padding: 2px 14px;
+          border-radius: 10px;
+          border: 1.5px solid #1890ff;
+          color: #1890ff;
+          background: #e6f7ff;
+        }
+        .vip-global-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #fff1f0;
+        }
+        .vip-global-status {
+          font-size: 0.98rem;
+          font-weight: 700;
+          padding: 2px 10px;
+          border-radius: 8px;
+          background: #f6f6f6;
+          border: 1.5px solid #e6e6e6;
+          color: #bfa700;
+        }
+        .vip-global-main {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          margin-bottom: 18px;
+          width: 100%;
+        }
+        .vip-global-pnl {
+          font-size: 2.2rem;
+          font-weight: 900;
+          margin-bottom: 6px;
+          color: #52c41a;
+        }
+        .vip-global-pnl.down { color: #cf1322; }
+        .vip-global-roi {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: #1890ff;
+          margin-bottom: 8px;
+        }
+        .vip-global-meta {
+          color: #888;
+          font-size: 0.98rem;
+          font-weight: 400;
+          margin-top: 10px;
+          text-align: left;
+          width: 100%;
+        }
+        .vip-global-row {
+          display: flex;
+          flex-direction: row;
+          gap: 24px;
+          align-items: center;
+          margin-bottom: 2px;
+          width: 100%;
+        }
+        .vip-global-label {
+          color: #888;
+          font-size: 1.01rem;
+          font-weight: 500;
+          min-width: 48px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-global-value {
+          color: #222;
+          font-size: 1.08rem;
+          font-weight: 700;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-global { max-width: calc(50% - 18px); flex-basis: calc(50% - 18px); }
+          .vip-trade-cards-global { gap: 18px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-global { flex-direction: column; gap: 12px; }
+          .vip-trade-card-global { max-width: 100%; flex-basis: 100%; border-radius: 12px; min-height: 120px; }
+        }
+        .vip-trade-cards-blackgold {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 28px;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          justify-content: flex-start;
+          box-sizing: border-box;
+        }
+        .vip-trade-cards-blackgold.single-card {
+          justify-content: center;
+        }
+        .vip-trade-cards-blackgold.single-card .vip-trade-card-blackgold {
+          max-width: 700px;
+          flex-basis: 700px;
+          width: 100%;
+        }
+        .vip-trade-card-blackgold {
+          max-width: calc(50% - 14px);
+          flex: 1 1 calc(50% - 14px);
+          min-width: 0;
+          background: linear-gradient(120deg, #181818 80%, #232323 100%);
+          border-radius: 18px;
+          box-shadow: 0 8px 32px 0 #000a, 0 0 0 2px #FFD70055;
+          border: 2.5px solid #FFD70088;
+          color: #fff;
+          min-height: 220px;
+          max-width: none;
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: row;
+          align-items: stretch;
+          position: relative;
+          overflow: hidden;
+          transition: box-shadow 0.3s, transform 0.3s;
+          font-family: 'DIN Alternate', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+        }
+        .vip-trade-card-blackgold:hover {
+          box-shadow: 0 12px 48px 0 #FFD70044, 0 0 0 4px #FFD700cc;
+          border-color: #FFD700;
+          transform: translateY(-2px) scale(1.01);
+        }
+        .vip-blackgold-left {
+          flex: 0 0 120px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #232323 60%, #FFD70022 100%);
+          border-top-left-radius: 18px;
+          border-bottom-left-radius: 18px;
+          min-width: 100px;
+          max-width: 140px;
+          padding: 24px 18px;
+          gap: 18px;
+        }
+        .vip-blackgold-symbol {
+          font-size: 2.2rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 2px;
+          margin-bottom: 10px;
+        }
+        .vip-blackgold-tags {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+        }
+        .vip-blackgold-type {
+          font-size: 1.01rem;
+          font-weight: 700;
+          padding: 2px 14px;
+          border-radius: 10px;
+          border: 1.5px solid #FFD700;
+          color: #FFD700;
+          background: #232323;
+        }
+        .vip-blackgold-type.sell {
+          border-color: #cf1322;
+          color: #cf1322;
+          background: #232323;
+        }
+        .vip-blackgold-status {
+          font-size: 0.98rem;
+          font-weight: 700;
+          padding: 2px 10px;
+          border-radius: 8px;
+          background: #232323;
+          border: 1.5px solid #FFD70055;
+          color: #FFD700;
+        }
+        .vip-blackgold-right {
+          flex: 1 1 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 12px;
+          padding: 32px 36px 32px 24px;
+          min-width: 0;
+        }
+        .vip-blackgold-main {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-end;
+          gap: 32px;
+          margin-bottom: 10px;
+        }
+        .vip-blackgold-pnl {
+          font-size: 1.5rem;
+          font-weight: 900;
+          margin-right: 0;
+          color: #cf1322;
+        }
+        .vip-blackgold-pnl.up {
+          color: #00c97b;
+        }
+        .vip-blackgold-pnl.down {
+          color: #cf1322;
+        }
+        .vip-blackgold-roi {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: #FFD700;
+        }
+        .vip-blackgold-roi-value.up {
+          color: #00c97b;
+          font-weight: 900;
+        }
+        .vip-blackgold-roi-value.down {
+          color: #cf1322;
+          font-weight: 900;
+        }
+        .vip-blackgold-roi.up {
+          color: #00c97b;
+        }
+        .vip-blackgold-roi.down {
+          color: #cf1322;
+        }
+        .vip-blackgold-row {
+          display: flex;
+          flex-direction: row;
+          gap: 24px;
+          align-items: center;
+          margin-bottom: 2px;
+          width: 100%;
+        }
+        .vip-blackgold-label {
+          color: #b0b0b0;
+          font-size: 1.01rem;
+          font-weight: 500;
+          min-width: 48px;
+          max-width: 60px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vip-blackgold-value {
+          color: #fff;
+          font-size: 1.08rem;
+          font-weight: 700;
+          margin-right: 12px;
+          word-break: break-all;
+        }
+        .vip-blackgold-meta {
+          color: #888;
+          font-size: 0.98rem;
+          font-weight: 400;
+          margin-top: 10px;
+          text-align: left;
+          width: 100%;
+        }
+        @media (max-width: 1200px) {
+          .vip-trade-card-blackgold { max-width: 100%; flex-basis: 100%; }
+          .vip-trade-cards-blackgold { gap: 18px; }
+        }
+        @media (max-width: 900px) {
+          .vip-trade-cards-blackgold { flex-direction: column; gap: 12px; }
+          .vip-trade-card-blackgold { max-width: 100%; flex-basis: 100%; border-radius: 12px; min-height: 120px; }
+          .vip-blackgold-left { min-width: 70px; max-width: 90px; padding: 18px 6px; }
+          .vip-blackgold-right { padding: 12px 6px 12px 6px; }
+          .vip-blackgold-main { gap: 12px; }
+        }
+        .vip-blackgold-main-row1 {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-end;
+          gap: 24px;
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 2px;
+        }
+        .vip-blackgold-pnl {
+          font-size: 1.5rem;
+          font-weight: 900;
+          margin-right: 0;
+        }
+        .vip-blackgold-roi {
+          font-size: 1.1rem;
+          font-weight: 800;
+        }
+        .vip-blackgold-main-row2 {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 2px;
+        }
+        .vip-blackgold-entry-time {
+          color: #b0b0b0;
+          font-size: 0.98rem;
+          font-weight: 400;
+          margin-top: -2px;
+          margin-bottom: 2px;
+          text-align: center;
+          width: 100%;
+        }
+        .vip-blackgold-main-row3, .vip-blackgold-main-row4 {
+          display: flex;
+          flex-direction: row;
+          gap: 18px;
+          justify-content: center;
+          width: 100%;
+          margin-bottom: 2px;
+        }
+        .vip-blackgold-field {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-width: 70px;
+          max-width: 120px;
+        }
+        .vip-blackgold-label {
+          color: #888;
+          font-size: 0.95rem;
+          font-weight: 400;
+          margin-bottom: 1px;
+        }
+        .vip-blackgold-value {
+          color: #fff;
+          font-size: 1.02rem;
+          font-weight: 700;
+          word-break: break-all;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .vip-trade-card-blackgold {
+            flex-direction: column !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            padding: 14px 8px !important;
+            border-radius: 12px !important;
+            margin-bottom: 16px;
+          }
+          .vip-blackgold-symbol-row, .vip-blackgold-pnl-row, .vip-blackgold-meta-row, .vip-blackgold-btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+          }
+          .vip-blackgold-symbol {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #FFD700;
+          }
+          .vip-blackgold-pnl, .vip-blackgold-roi {
+            font-size: 1.1rem;
+            font-weight: 700;
+          }
+          .vip-blackgold-meta-row span {
+            font-size: 0.98rem;
+            color: #b0c4e6;
+          }
+          .vip-blackgold-btn-row button {
+            flex: 1 1 48%;
+            margin: 0 2px;
+            font-size: 1rem;
+            padding: 8px 0;
+            border-radius: 8px;
+          }
+        }
+        @media (max-width: 600px) {
+          .vip-trade-cards-blackgold { display: block !important; }
+          .vip-trade-card-blackgold { display: none !important; }
+          .vip-mobile-card {
+            width: 100vw;
+            margin: 0;
+            padding: 18px 0 12px 0;
+            background: #232B3E;
+            border-bottom: 1.5px solid #222a3a;
+            box-sizing: border-box;
+          }
+          .vip-mobile-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #FFD700;
+            margin-bottom: 8px;
+            padding: 0 16px;
+          }
+          .vip-mobile-main {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 16px;
+            margin-bottom: 6px;
+          }
+          .vip-mobile-pnl, .vip-mobile-roi {
+            font-size: 1.18rem;
+            font-weight: 900;
+          }
+          .vip-mobile-pnl.up span, .vip-mobile-roi.up span { color: #00ffae; }
+          .vip-mobile-pnl.down span, .vip-mobile-roi.down span { color: #cf1322; }
+          .vip-mobile-meta {
+            font-size: 0.98rem;
+            color: #b0c4e6;
+            padding: 0 16px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 16px;
+          }
+          .vip-mobile-btns {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+          }
+          .vip-mobile-btns button {
+            flex: 1 1 0;
+            font-size: 1.08rem;
+            padding: 10px 0;
+            border-radius: 8px;
+            font-weight: 700;
+          }
+        }
+        .vip-trade-cards-blackgold {
+          {% if vip_trades and vip_trades|length > 0 %}
+            {% for trade in vip_trades %}
+            <div class="vip-trade-card-new">
+              <div class="vip-trade-card-left">
+                <div class="vip-symbol">{{ trade.symbol }}</div>
+                <div class="vip-type {{ 'sell' if trade.trade_type not in ['买涨','buy','多','long'] else '' }}">{{ trade.trade_type|default(trade.direction)|capitalize }}</div>
+                <div class="vip-status status-{{ trade.status|lower }}">{{ trade.status|capitalize }}</div>
+              </div>
+              <div class="vip-trade-card-main">
+                <div class="vip-pnl-row">
+                  <span class="vip-pnl {% if trade.pnl >= 0 %}up{% else %}down{% endif %}">PnL {{ trade.pnl is not none and ('%.2f' % trade.pnl) or '-' }}</span>
+                  <span class="vip-roi">ROI <span class="{% if trade.roi >= 0 %}up{% else %}down{% endif %}">{{ trade.roi is not none and ('%.2f%%' % trade.roi) or '-' }}</span></span>
+                </div>
+                <div class="vip-meta-row">
+                  <span>Entry Price: <b>{{ trade.entry_price }}</b> × <b>{{ trade.quantity }}</b></span>
+                  <span>Current Price: <b>{{ trade.current_price or '-' }}</b></span>
+                </div>
+                <div class="vip-meta-row">
+                  <span>Entry Time: <b><span class="us-time" data-time="{{ trade.entry_time|e }}">{{ trade.entry_time or '-' }}</span></b></span>
+                  <span>Exit Price: <b>{{ trade.exit_price or '-' }}</b></span>
+                  <span>Exit Time: <b><span class="us-time" data-time="{{ trade.exit_time|e }}">{{ trade.exit_time or '-' }}</span></b></span>
+                </div>
+              </div>
+              <div class="vip-trade-card-btns">
+                <button class="btn btn-outline-warning btn-sm">Buy</button>
+                <button class="btn btn-outline-light btn-sm">持有</button>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div style="color:#b0c4e6;text-align:center;">No VIP trades available.</div>
+          {% endif %}
+        </div>
+        <style>
+        .vip-trade-card-new {
+          display: flex;
+          align-items: stretch;
+          background: linear-gradient(120deg, #232B3E 60%, #181c2a 100%);
+          border-radius: 22px;
+          box-shadow: 0 8px 32px #FFD70033, 0 0 0 2px #FFD70055;
+          border: 2px solid #FFD70088;
+          color: #fff;
+          margin-bottom: 32px;
+          overflow: hidden;
+        }
+        .vip-trade-card-left {
+          background: #FFD700;
+          color: #232B3E;
+          min-width: 120px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          font-size: 1.5rem;
+          padding: 24px 12px;
+        }
+        .vip-symbol { font-size: 2rem; font-weight: 900; margin-bottom: 8px; }
+        .vip-type { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .vip-status { font-size: 1.05rem; font-weight: 700; }
+        .vip-trade-card-main {
+          flex: 1;
+          padding: 24px 32px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 12px;
+        }
+        .vip-pnl-row {
+          font-size: 1.3rem;
+          font-weight: 900;
+          color: #00ffae;
+          margin-bottom: 8px;
+        }
+        .vip-pnl.up { color: #00ffae; }
+        .vip-pnl.down { color: #cf1322; }
+        .vip-roi { color: #FFD700; margin-left: 24px; }
+        .vip-roi.up { color: #FFD700; }
+        .vip-roi.down { color: #cf1322; }
+        .vip-meta-row { color: #b0c4e6; font-size: 1.05rem; margin-bottom: 2px; display: flex; gap: 32px; flex-wrap: wrap; }
+        .vip-trade-card-btns {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          gap: 8px;
+          padding: 24px 12px;
+        }
+        .vip-trade-card-btns button {
+          font-size: 1.08rem;
+          font-weight: 700;
+          border-radius: 8px;
+          margin-bottom: 4px;
+        }
+        @media (max-width: 900px) {
+          .vip-trade-card-new { flex-direction: column; }
+          .vip-trade-card-left, .vip-trade-card-btns { flex-direction: row; justify-content: space-between; padding: 12px 8px; }
+          .vip-trade-card-main { padding: 12px 8px; }
+          .vip-meta-row { gap: 12px; }
+        }
+        </style>
+        <style>
+        .trade-card-list {
+          margin-top: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .trade-card {
+          background: #232B3E;
+          border-radius: 16px;
+          box-shadow: 0 2px 12px #FFD70022;
+          border: 1.5px solid #FFD70033;
+          padding: 16px 14px 10px 14px;
+          color: #fff;
+          font-size: 1.08rem;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .trade-card-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 6px;
+        }
+        .trade-symbol {
+          font-size: 1.25rem;
+          font-weight: 900;
+          color: #FFD700;
+          letter-spacing: 1px;
+        }
+        .trade-type {
+          font-size: 1.05rem;
+          font-weight: 700;
+          border-radius: 8px;
+          padding: 2px 12px;
+          margin-left: 4px;
+        }
+        .trade-type.buy {
+          background: #00ffae22;
+          color: #00ffae;
+          border: 1.5px solid #00ffae;
+        }
+        .trade-type.sell {
+          background: #cf132222;
+          color: #cf1322;
+          border: 1.5px solid #cf1322;
+        }
+        .trade-date {
+          margin-left: auto;
+          color: #b0c4e6;
+          font-size: 0.98rem;
+        }
+        .trade-info-group {
+          display: flex;
+          gap: 18px;
+          margin-bottom: 2px;
+        }
+        .label {
+          color: #b0c4e6;
+          font-size: 0.98em;
+          margin-right: 2px;
+        }
+        .trade-pnl.up { color: #00ffae; font-weight: 900; }
+        .trade-pnl.down { color: #cf1322; font-weight: 900; }
+        .trade-ratio-badge {
+          display: inline-block;
+          min-width: 54px;
+          text-align: center;
+          border-radius: 8px;
+          font-weight: 900;
+          padding: 2px 8px;
+          margin-left: 2px;
+        }
+        .trade-ratio-badge.up { background: #00ffae22; color: #00ffae; }
+        .trade-ratio-badge.down { background: #cf132222; color: #cf1322; }
+        .trade-notes {
+          margin-top: 4px;
+          color: #b0c4e6;
+          font-size: 0.97em;
+          word-break: break-all;
+        }
+        .trade-card-footer {
+          margin-top: 10px;
+          display: flex;
+          justify-content: flex-end;
+        }
+        .btn-block {
+          width: 100%;
+          font-size: 1.08rem;
+          font-weight: 700;
+          border-radius: 8px;
+        }
+        </style>
+    </style>
+</head>
+<body>
+<div class="main-content">
+    <!-- 顶部欢迎区 -->
+    {% set level_map = {
+        'VIP': 'Regular Member',
+        'Regular Member': 'Regular Member',
+        'Gold Member': 'Gold Member',
+        'Diamond Member': 'Diamond Member',
+        'Supreme Black Card': 'Supreme Black Card',
+        '黄金会员': 'Gold Member',
+        '钻石会员': 'Diamond Member',
+        '至尊黑卡': 'Supreme Black Card',
+        '普通会员': 'Regular Member',
+    } %}
+    {% set display_level = level_map.get(trader_info.membership_level, trader_info.membership_level) %}
+    <div class="section center">
+        <h1 class="gold-text" style="font-size:3.2rem;font-weight:900;letter-spacing:2px;margin-bottom:8px;">
+            Welcome back, esteemed {{ trader_info.trader_name|default(session.username) }} ({{ display_level }})
+        </h1>
+        <div style="color:#b0c4e6;font-size:1.3rem;margin-bottom:20px;">
+            Let professional investment strategies help you grow your wealth
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:24px;">
+            <!-- 顶部欢迎区头像 -->
+            <div style="position:relative;cursor:pointer;" id="avatar-preview-trigger">
+                <img src="{{ trader_info.avatar_url if trader_info.avatar_url else 'https://api.dicebear.com/7.x/avataaars/svg?seed=' ~ (trader_info.trader_name or session.username) }}" alt="avatar" class="avatar-glow" style="width:120px;height:120px;border-radius:50%;background:#232b3e;object-fit:cover;">
+                <!-- 删除svg图标，不再显示 -->
+            </div>
+            <div style="display:flex;gap:20px;justify-content:center;margin-top:18px;">
+                <button class="ant-btn ant-btn-primary styled-button" style="font-weight:700;border-radius:12px;"><span class="anticon"><svg viewBox="64 64 896 896" focusable="false" data-icon="upload" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M872 474H728V184c0-4.4-3.6-8-8-8H304c-4.4 0-8 3.6-8 8v290H152c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h720c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8z"></path></svg></span> Upload Trade Record</button>
+                <button class="ant-btn styled-button" id="settings-btn" style="font-weight:700;border-radius:12px;"><span class="anticon"><svg viewBox="64 64 896 896" focusable="false" data-icon="setting" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M925.8 731.1l-74.2-43.1c3.7-23.2 5.6-46.9 5.6-70.9s-1.9-47.7-5.6-70.9l74.2-43.1c7.7-4.5 11-14.1 7.7-22.3l-48.1-111.2c-3.3-8.2-12.2-12.1-20.4-9.1l-74.2 29.7c-19.6-15.1-40.5-28.1-62.6-38.7l-11.3-78.7c-1.2-8.6-8.6-14.8-17.2-14.8h-120c-8.6 0-16 6.2-17.2 14.8l-11.3 78.7c-22.1 10.6-43 23.6-62.6 38.7l-74.2-29.7c-8.2-3.3-17.1.9-20.4 9.1l-48.1 111.2c-3.3 8.2 0 17.8 7.7 22.3l74.2 43.1c-3.7 23.2-5.6 46.9-5.6 70.9s1.9 47.7 5.6 70.9l-74.2 43.1c-7.7 4.5-11 14.1-7.7 22.3l48.1 111.2c3.3 8.2 12.2 12.1 20.4 9.1l74.2-29.7c19.6 15.1 40.5 28.1 62.6 38.7l11.3 78.7c1.2 8.6 8.6 14.8 17.2 14.8h120c8.6 0 16-6.2 17.2-14.8l11.3-78.7c22.1-10.6 43-23.6 62.6-38.7l74.2 29.7c8.2 3.3 17.1-.9 20.4-9.1l48.1 111.2c3.3 8.2 0 17.8-7.7 22.3zM512 704c-106 0-192-86-192-192s86-192 192-192 192 86 192 192-86 192-192 192z"></path></svg></span> Settings</button>
+            </div>
+        </div>
+    </div>
+    <!-- 五大数据卡片 -->
+    <div class="glass-stat-card-grid">
+        <div class="glass-stat-card">
+            <div class="glass-stat-label">Initial Capital</div>
+            <div class="glass-stat-value" style="color:#00ffae;">{{ '{:,.2f}'.format(total_asset) }}<span class="glass-stat-unit">$</span></div>
+        </div>
+        <div class="glass-stat-card">
+            <div class="glass-stat-label">Total Profit</div>
+            <div class="glass-stat-value" style="color:#ffd700;">{{ '{:,.2f}'.format(total_profit) }}<span class="glass-stat-unit">$</span></div>
+        </div>
+        <div class="glass-stat-card">
+            <div class="glass-stat-label">Monthly Profit</div>
+            <div class="glass-stat-value" style="color:#52c41a;">{{ '{:,.2f}'.format(monthly_profit) }}<span class="glass-stat-unit">$</span></div>
+        </div>
+        <div class="glass-stat-card">
+            <div class="glass-stat-label">Holding Profit</div>
+            <div class="glass-stat-value" id="holding-profit-card" style="color:#faad14;">{{ '{:,.2f}'.format(holding_profit) }}<span class="glass-stat-unit">$</span></div>
+        </div>
+    </div>
+
+    <!-- 投资公告与策略（美化版） -->
+    <div class="section">
+        <h2 class="card-title">Investment Announcements & Strategies</h2>
+        {% if announcements and announcements|length > 0 %}
+            {% for ann in announcements %}
+            <div class="announcement-card">
+              <div class="announcement-header">
+                <span class="announcement-title">{{ ann.title }}</span>
+                {% set p = (ann.priority or '').lower() %}
+                {% if '高' in p or 'high' in p %}
+                  <span class="priority-badge priority-high">Priority: {{ ann.priority }}</span>
+                {% elif '中' in p or 'medium' in p %}
+                  <span class="priority-badge priority-medium">Priority: {{ ann.priority }}</span>
+                {% elif '低' in p or 'low' in p %}
+                  <span class="priority-badge priority-low">Priority: {{ ann.priority }}</span>
+                {% elif ann.priority %}
+                  <span class="priority-badge priority-medium">Priority: {{ ann.priority }}</span>
+                {% endif %}
+              </div>
+              <div class="announcement-content">{{ ann.content|safe }}</div>
+              <div class="announcement-meta">
+                <span>Publisher: {{ ann.publisher or '-' }}</span>
+                <span><span class="us-time" data-time="{{ ann.date or ann.created_at or '' }}">{{ ann.date or ann.created_at or '' }}</span></span>
+              </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="announcement-card" style="color:#b0c4e6;text-align:center;">No announcements available.</div>
+        {% endif %}
+<!-- VIP交易记录表格区域 -->
+<div class="vip-trades-section">
+    {% if vip_trades and vip_trades|length > 0 %}
+      <div class="table-wrapper">
+        <table class="vip-trades-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Type</th>
+              <th>Entry Price</th>
+              <th>Current Price</th>
+              <th>Exit Price</th>
+              <th>Quantity</th>
+              <th>PnL</th>
+              <th>ROI</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for trade in vip_trades %}
+            <tr>
+              <td class="symbol-cell">{{ trade.symbol }}</td>
+              <td>
+                <span class="trade-type-badge {{ 'buy' if trade.direction in ['买涨','buy','多','long'] else 'sell' }}">
+                  {{ 'Buy' if trade.direction in ['买涨','buy','多','long'] else 'Sell' }}
+                </span>
+              </td>
+              <td>${{ "%.2f"|format(trade.entry_price) if trade.entry_price else '-' }}</td>
+              <td class="current-price" data-symbol="{{ trade.symbol }}">
+                ${{ "%.2f"|format(trade.current_price) if trade.current_price else '-' }}
+              </td>
+              <td>${{ "%.2f"|format(trade.exit_price) if trade.exit_price else '-' }}</td>
+              <td>{{ "%.1f"|format(trade.quantity) if trade.quantity else '-' }}</td>
+              <td class="pnl-cell" data-entry="{{ trade.entry_price }}" data-exit="{{ trade.exit_price }}" data-current="{{ trade.current_price }}" data-quantity="{{ trade.quantity }}" data-direction="{{ trade.direction }}">
+                <span class="pnl-value">Calculating...</span>
+              </td>
+              <td class="roi-cell" data-entry="{{ trade.entry_price }}" data-exit="{{ trade.exit_price }}" data-current="{{ trade.current_price }}" data-quantity="{{ trade.quantity }}" data-direction="{{ trade.direction }}">
+                <span class="roi-value">Calculating...</span>
+              </td>
+              <td class="date-cell">
+                {{ trade.entry_time[:10] if trade.entry_time else '-' }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="no-trades-message">No VIP trades available.</div>
+    {% endif %}
+  </div>
+  
+  <style>
+  /* VIP交易表格样式 */
+  .vip-trades-section {
+    margin-top: 24px;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+    background-color: #232B3E;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  
+  .vip-trades-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+  }
+  
+  .vip-trades-table th, 
+  .vip-trades-table td {
+    padding: 16px 10px; /* 增加垂直内边距 */
+    text-align: center;
+    white-space: nowrap;
+    border: none;
+    font-size: 1.1rem; /* 加大基础字体 */
+    font-weight: 600; /* 基础字体加粗 */
+  }
+  
+  /* 各列宽度分配 */
+  .vip-trades-table th:nth-child(1), /* Symbol */
+  .vip-trades-table td:nth-child(1) { width: 12%; }
+  .vip-trades-table th:nth-child(2), /* Type */
+  .vip-trades-table td:nth-child(2) { width: 8%; }
+  .vip-trades-table th:nth-child(3), /* Entry Price */
+  .vip-trades-table td:nth-child(3),
+  .vip-trades-table th:nth-child(4), /* Current Price */
+  .vip-trades-table td:nth-child(4),
+  .vip-trades-table th:nth-child(5) { /* Exit Price */
+    width: 12%;
+  }
+  .vip-trades-table th:nth-child(6), /* Quantity */
+  .vip-trades-table td:nth-child(6) { width: 10%; }
+  .vip-trades-table th:nth-child(7), /* PnL */
+  .vip-trades-table td:nth-child(7),
+  .vip-trades-table th:nth-child(8) { /* ROI */
+    width: 12%;
+  }
+  .vip-trades-table th:nth-child(9), /* Date */
+  .vip-trades-table td:nth-child(9) { width: 10%; }
+  
+  .vip-trades-table thead tr {
+    border-bottom: 3px solid #FFD700;
+  }
+  
+  .vip-trades-table th {
+    color: #FFD700;
+    font-weight: 700; /* 表头更粗 */
+    font-size: 1rem; /* 表头字体大小 */
+    background-color: #232B3E;
+    text-transform: uppercase;
+    letter-spacing: 1px; /* 增加字母间距 */
+    padding: 14px 10px;
+  }
+  
+  .vip-trades-table tbody tr {
+    border-bottom: 1px solid #2e3c5d;
+    transition: background-color 0.3s ease;
+  }
+  
+  .vip-trades-table tbody tr:hover {
+    background-color: #2a3441;
+  }
+  
+  .symbol-cell {
+    font-weight: 700; /* Symbol更粗 */
+    color: #FFD700;
+    font-size: 1.2rem; /* Symbol更大 */
+  }
+  
+  .trade-type-badge {
+    padding: 5px 14px; /* 按钮内边距加大 */
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+  }
+  
+  .trade-type-badge.buy {
+    background-color: #00ffae22;
+    color: #00ffae;
+    border: 1.5px solid #00ffae; /* 边框加粗 */
+  }
+  
+  .trade-type-badge.sell {
+    background-color: #cf132222;
+    color: #cf1322;
+    border: 1.5px solid #cf1322; /* 边框加粗 */
+  }
+  
+  .pnl-cell .pnl-value,
+  .roi-cell .roi-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  
+  .pnl-cell .pnl-value.up,
+  .roi-cell .roi-value.up {
+    color: #00ffae;
+  }
+  
+  .pnl-cell .pnl-value.down,
+  .roi-cell .roi-value.down {
+    color: #cf1322;
+  }
+  
+  .no-trades-message {
+    text-align: center;
+    color: #b0c4e6;
+    padding: 40px;
+    font-size: 1.1rem;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .vip-trades-table th, 
+    .vip-trades-table td {
+      padding: 12px 6px;
+      font-size: 0.95rem;
+    }
+    
+    .vip-trades-table th {
+      font-size: 0.9rem;
+      padding: 12px 6px;
+    }
+  }
+  </style>
+  
+  <script>
+  // 格式化日期为美国格式 MM/DD/YY
+  function formatUsDates() {
+    const dateCells = document.querySelectorAll('.date-cell');
+    dateCells.forEach(cell => {
+      const isoDate = cell.textContent.trim();
+      if (isoDate && isoDate !== '-') { // 格式为 YYYY-MM-DD
+        const parts = isoDate.split('-');
+        if (parts.length === 3) {
+          const [year, month, day] = parts;
+          // 转换为 MM/DD/YY 格式
+          cell.textContent = `${month}/${day}/${year.slice(-2)}`;
+        }
+      }
+    });
+  }
+  
+  // 实时计算PnL和ROI
+  function calculatePnLAndROI() {
+    const pnlCells = document.querySelectorAll('.pnl-cell');
+    const roiCells = document.querySelectorAll('.roi-cell');
+    
+    pnlCells.forEach((cell, index) => {
+      const entryPrice = parseFloat(cell.dataset.entry);
+      const exitPrice = parseFloat(cell.dataset.exit);
+      const currentPrice = parseFloat(cell.dataset.current);
+      const quantity = parseFloat(cell.dataset.quantity);
+      const direction = cell.dataset.direction;
+      
+      const finalPrice = exitPrice || currentPrice;
+      
+      if (entryPrice && finalPrice && quantity) {
+        let pnl = 0;
+        if (direction && direction.toLowerCase().includes('sell')) {
+          pnl = (entryPrice - finalPrice) * quantity;
+        } else {
+          pnl = (finalPrice - entryPrice) * quantity;
+        }
+        
+        const pnlValue = cell.querySelector('.pnl-value');
+        pnlValue.textContent = `$${pnl.toFixed(2)}`;
+        pnlValue.className = `pnl-value ${pnl >= 0 ? 'up' : 'down'}`;
+        
+        const roiCell = roiCells[index];
+        const roiValue = roiCell.querySelector('.roi-value');
+        const roi = (pnl / (entryPrice * quantity)) * 100;
+        roiValue.textContent = `${roi.toFixed(2)}%`;
+        roiValue.className = `roi-value ${roi >= 0 ? 'up' : 'down'}`;
+      }
+    });
+  }
+  
+  // 更新实时价格
+  function updateCurrentPrices() {
+    const priceCells = document.querySelectorAll('.current-price');
+    
+    priceCells.forEach(cell => {
+      const symbol = cell.dataset.symbol;
+      if (symbol) {
+        fetch(`/api/price?symbol=${symbol}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.price) {
+              cell.textContent = `$${parseFloat(data.price).toFixed(2)}`;
+              const row = cell.closest('tr');
+              row.querySelector('.pnl-cell').dataset.current = data.price;
+              row.querySelector('.roi-cell').dataset.current = data.price;
+              calculatePnLAndROI();
+            }
+          })
+          .catch(error => console.error('Error fetching price:', error));
+      }
+    });
+  }
+  
+  // 页面加载完成后初始化
+  document.addEventListener('DOMContentLoaded', function() {
+    formatUsDates(); // 格式化日期
+    calculatePnLAndROI();
+    
+    setInterval(updateCurrentPrices, 30000);
+  });
+  </script>
+    </div>
+    <!-- 交易记录（持仓分析/历史交易） -->
+    <div class="section">
+        <h2 class="card-title">Trade Records</h2>
+        <!-- 统计卡片区域（总资产、总市值、可用资金） -->
+        <div class="flex-row mb-24">
+            <div class="card" style="flex:1;min-width:220px;">
+                <div class="glass-stat-label">Total Assets</div>
+                <div class="glass-stat-value gold-number">$ {{ '{:,.2f}'.format(dynamic_total_asset) }}</div>
+                <div class="progress-bar" style="width:85%"></div>
+                <div class="progress-label" style="text-align:center;margin-top:8px;font-size:1.25rem;color:#FFD700;font-weight:700;">
+                    $ {{ '{:,.2f}'.format(dynamic_total_asset) }}
+                </div>
+            </div>
+            <div class="card" style="flex:1;min-width:220px;">
+                <div class="glass-stat-label">Total Market Value</div>
+                <div class="glass-stat-value" style="color:#00ffae;">¥{{ '{:,.2f}'.format(total_market_value) }}</div>
+                <div class="progress-bar" style="width:65%;background:#00ffae;"></div>
+            </div>
+            <div class="card" style="flex:1;min-width:220px;">
+                <div class="glass-stat-label">Available Funds</div>
+                <div class="glass-stat-value" style="color:#faad14;">¥{{ '{:,.2f}'.format(available_funds) }}</div>
+                <div class="progress-bar" style="width:50%;background:#faad14;"></div>
+            </div>
+        </div>
+        <div id="trade-record-detail">
+          <!-- PC端表格（10条） -->
+          <div class="table-wrapper trade-table-pc" style="margin-top:12px;overflow-x:auto;">
+            <table class="vip-table" id="trade-record-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Symbol</th>
+                  <th>Type</th>
+                  <th>Entry Price</th>
+                  <th>Current Price</th>
+                  <th>Quantity</th>
+                  <th>Exit Price</th>
+                  <th>Exit Date</th>
+                  <th>P&L Amount</th>
+                  <th>P&L Ratio</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in trades[:10] %}
+                <tr>
+                  <td>{{ t.entry_date[:10] if t.entry_date else '-' }}</td>
+                  <td>{{ t.symbol or '-' }}</td>
+                  <td>
+                    {% if t.exit_price %}
+                      <span class="trade-type-table sell">Sell</span>
+                    {% else %}
+                      <span class="trade-type-table buy">Buy</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ t.entry_price or '-' }}</td>
+                  <td>{{ t.current_price or '-' }}</td>
+                  <td>{{ t.size or '-' }}</td>
+                  <td>{{ t.exit_price or '-' }}</td>
+                  <td>{{ t.exit_date[:10] if t.exit_date else '-' }}</td>
+                  <td>
+                    {% if t.exit_price %}
+                      {{ '%.2f' % ((t.exit_price - t.entry_price) * t.size) }}
+                    {% elif t.current_price %}
+                      {{ '%.2f' % ((t.current_price - t.entry_price) * t.size) }}
+                    {% else %}-{% endif %}
+                  </td>
+                  <td>
+                    {% set profit = (t.exit_price or t.current_price or 0) - (t.entry_price or 0) %}
+                    {% set profit_pct = (profit / t.entry_price * 100) if t.entry_price else 0 %}
+                    <span class="trade-profit-table {{ 'up' if profit_pct >= 0 else 'down' }}">
+                      {{ '{:+.1f}%'.format(profit_pct) }}
+                    </span>
+                  </td>
+                  <td>
+                    {% if not t.exit_price %}
+                      <button class="btn btn-sm btn-warning" onclick="openCloseTradeModal('{{ t.id }}')">Close</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% if trades|length > 10 %}
+            <div style="text-align:right;margin-top:8px;">
+              <button class="btn btn-primary" onclick="showAllTradesModal()">View All</button>
+            </div>
+            {% endif %}
+          </div>
+          <!-- 移动端卡片（5条） -->
+          <div class="trade-card-list trade-mobile-list">
+            {% for t in trades[:5] %}
+            <div class="trade-card">
+              <div class="trade-card-header">
+                <span class="trade-symbol">{{ t.symbol or '-' }}</span>
+                {% if t.exit_price %}
+                  <span class="trade-type sell">Sell</span>
+                {% else %}
+                  <span class="trade-type buy">Buy</span>
+                {% endif %}
+                <span class="trade-date">{{ t.entry_date[:10] if t.entry_date else '-' }}</span>
+              </div>
+              <div class="trade-card-body">
+                <div class="trade-info-group">
+                  <div><span class="label">Entry:</span> <b>{{ t.entry_price or '-' }}</b></div>
+                  <div><span class="label">Current:</span> <b>{{ t.current_price or '-' }}</b></div>
+                  <div><span class="label">Exit:</span> <b>{{ t.exit_price or '-' }}</b></div>
+                </div>
+                <div class="trade-info-group">
+                  <div><span class="label">Qty:</span> <b>{{ t.size or '-' }}</b></div>
+                  <div><span class="label">Exit Date:</span> <b>{{ t.exit_date[:10] if t.exit_date else '-' }}</b></div>
+                </div>
+                <div class="trade-info-group">
+                  <div>
+                    <span class="label">P&L:</span>
+                    <span class="trade-pnl {% if t.exit_price or t.current_price and (t.exit_price or t.current_price) - (t.entry_price or 0) >= 0 %}up{% else %}down{% endif %}">
+                      {% if t.exit_price %}
+                        {{ '%.2f' % ((t.exit_price - t.entry_price) * t.size) }}
+                      {% elif t.current_price %}
+                        {{ '%.2f' % ((t.current_price - t.entry_price) * t.size) }}
+                      {% else %}-{% endif %}
+                    </span>
+                  </div>
+                  <div>
+                    <span class="label">Ratio:</span>
+                    {% set profit = (t.exit_price or t.current_price or 0) - (t.entry_price or 0) %}
+                    {% set profit_pct = (profit / t.entry_price * 100) if t.entry_price else 0 %}
+                    <span class="trade-ratio-badge {% if profit_pct >= 0 %}up{% else %}down{% endif %}">
+                      {{ '{:+.1f}%'.format(profit_pct) }}
+                    </span>
+                  </div>
+                </div>
+                {% if t.notes %}
+                <div class="trade-notes">
+                  <span class="label">Notes:</span> {{ t.notes }}
+                </div>
+                {% endif %}
+              </div>
+              {% if not t.exit_price %}
+              <div class="trade-card-footer">
+                <button class="btn btn-warning btn-block" onclick="openCloseTradeModal('{{ t.id }}')">Close</button>
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+            {% if trades|length > 5 %}
+            <div style="text-align:right;margin-top:8px;">
+              <button class="btn btn-primary" onclick="showAllTradesModal()">View All</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+    </div>
+    <!-- 强制媒体查询，确保PC端只显示表格，移动端只显示卡片 -->
+<style>
+  @media (max-width: 700px) {
+    .trade-table-pc { display: none !important; }
+    .trade-mobile-list { display: block !important; }
+  }
+  @media (min-width: 701px) {
+    .trade-table-pc { display: block !important; }
+    .trade-mobile-list { display: none !important; }
+  }
+  </style>
+    <!-- 会员收益排名 -->
+    <div class="section">
+        <h2 class="card-title" style="font-size:2.2rem;font-weight:900;color:#FFD700;text-shadow:0 2px 8px #181F2A88;margin-bottom:24px;">Member Profit Ranking</h2>
+        <div class="card member-rank-table-pc" style="border:3px solid #FFD700;padding:36px 28px 28px 28px;box-shadow:0 0 24px #FFD70033;">
+            <table class="ant-table w-100" style="border-radius:18px;overflow:hidden;background:#181F2A;">
+                <thead>
+                    <tr style="background:#232e4a;">
+                        <th style="text-align:center;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Rank</th>
+                        <th style="text-align:left;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Avatar</th>
+                        <th style="text-align:left;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Member</th>
+                        <th style="text-align:left;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Membership Level</th>
+                        <th style="text-align:right;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Total Profit ($)</th>
+                        <th style="text-align:right;color:#FFD700;font-size:1.18rem;font-weight:900;letter-spacing:1px;">Monthly Profit ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in top_users[:5] %}
+                    <tr class="rank-row" style="border-bottom:1.5px solid #FFD70022;background:linear-gradient(90deg,#232B3E 80%,#232e4a 100%);">
+                        <td style="text-align:center;font-weight:900;">
+                            <span style="font-size:1.6rem;{% if loop.index == 1 %}color:#FFD700;text-shadow:0 0 8px #FFD70099;{% elif loop.index == 2 %}color:#b0c4e6;text-shadow:0 0 8px #b0c4e6aa;{% elif loop.index == 3 %}color:#faad14;text-shadow:0 0 8px #faad1499;{% else %}color:#fff;{% endif %}">
+                                {{ loop.index }}
+                            </span>
+                        </td>
+                        <td style="text-align:left;">
+                            <img src="{{ user.avatar_url or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' ~ user.username }}" 
+                                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #FFD700;box-shadow:0 0 8px #FFD70033;"
+                                 alt="{{ user.username }}">
+                        </td>
+                        <td style="text-align:left;font-weight:700;font-size:1.12rem;letter-spacing:1px;color:#fff;">{{ user.username }}</td>
+                        <td style="text-align:left;">
+                            <span class="membership-badge {{ membership_level_class(user.membership_level) }}" style="font-size:1.08rem;font-weight:900;padding:6px 18px;border-radius:20px;box-shadow:0 0 12px #FFD70055;letter-spacing:1px;{% if user.membership_level=='黄金会员' or user.membership_level=='Gold Member' %}background:linear-gradient(90deg,#FFD700 60%,#FFB300 100%);color:#232B3E;{% elif user.membership_level=='钻石会员' or user.membership_level=='Diamond Member' %}background:linear-gradient(90deg,#b0c4e6 60%,#FFD700 100%);color:#232B3E;{% elif user.membership_level=='至尊黑卡' or user.membership_level=='Supreme Black Card' %}background:linear-gradient(90deg,#232B3E 60%,#FFD700 100%);color:#FFD700;border:2px solid #FFD700;{% else %}background:#eee;color:#232B3E;{% endif %}">
+                                {{ user.membership_level|replace('黄金会员', 'Gold Member')|replace('钻石会员', 'Diamond Member')|replace('至尊黑卡', 'Supreme Black Card')|replace('普通会员', 'Regular Member')|replace('会员', 'VIP') }}
+                            </span>
+                        </td>
+                        <td style="text-align:right;font-weight:900;">
+                            <span style="font-size:1.12rem;{% if user.total_profit > 0 %}color:#00ffae;{% elif user.total_profit < 0 %}color:#ff4d4f;{% else %}color:#b0c4e6;{% endif %}">
+                                {{ '{:,.2f}'.format(user.total_profit or 0) }}
+                            </span>
+                        </td>
+                        <td style="text-align:right;font-weight:900;">
+                            <span style="font-size:1.12rem;{% if user.monthly_profit > 0 %}color:#52c41a;{% elif user.monthly_profit < 0 %}color:#ff4d4f;{% else %}color:#b0c4e6;{% endif %}">
+                                {{ '{:,.2f}'.format(user.monthly_profit or 0) }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if top_users|length > 5 %}
+            <div style="text-align:center;margin-top:18px;">
+                <button id="show-all-rank-btn" class="styled-button" style="background:linear-gradient(90deg,#FFD700 0%,#FFEA00 100%);color:#232B3E;font-weight:900;border-radius:16px;padding:12px 36px;font-size:1.2rem;box-shadow:0 2px 8px #FFD70055;">View All Rankings</button>
+            </div>
+            {% endif %}
+        </div>
+        <!-- 移动端会员收益排名卡片 -->
+        <div class="member-rank-mobile-list">
+          {% for user in top_users[:5] %}
+          <div class="member-rank-mobile-card" style="background:linear-gradient(135deg,#232B3E 60%,#232e4a 100%);border-radius:14px;box-shadow:0 4px 16px #181F2A33,0 0 0 2px #FFD70022;border:1.5px solid rgba(255,215,0,0.10);padding:14px 12px 10px 12px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px;">
+            <div class="rank-row-main" style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+              <span class="rank-num" style="font-size:1.18rem;font-weight:900;color:{% if loop.index == 1 %}#FFD700{% elif loop.index == 2 %}#b0c4e6{% elif loop.index == 3 %}#faad14{% else %}#fff{% endif %};min-width:24px;text-align:center;">{{ loop.index }}</span>
+              <img src="{{ user.avatar_url or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' ~ user.username }}" class="rank-avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #FFD700;box-shadow:0 0 4px #FFD70033;">
+              <span class="rank-name" style="font-weight:700;font-size:1.05rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">{{ user.username }}</span>
+              <span class="rank-level {{ membership_level_class(user.membership_level) }}" style="font-size:0.95rem;padding:2px 10px;border-radius:8px;background:#1a2236;margin-left:4px;min-width:80px;text-align:center;display:inline-block;">{{ user.membership_level|replace('黄金会员', 'Gold Member')|replace('钻石会员', 'Diamond Member')|replace('至尊黑卡', 'Supreme Black Card')|replace('普通会员', 'Regular Member')|replace('会员', 'VIP') }}</span>
+            </div>
+            <div class="rank-row-bottom" style="display:flex;justify-content:space-between;font-size:1.05em;margin-top:2px;">
+              <span class="rank-amount" style="color:{% if user.total_profit > 0 %}#00ffae{% elif user.total_profit < 0 %}#ff4d4f{% else %}#b0c4e6{% endif %};font-weight:900;font-size:1.08rem;">${{ '{:,.2f}'.format(user.total_profit or 0) }}</span>
+              <span class="rank-rate" style="color:{% if user.monthly_profit > 0 %}#52c41a{% elif user.monthly_profit < 0 %}#ff4d4f{% else %}#b0c4e6{% endif %};font-weight:900;font-size:1.08rem;">${{ '{:,.2f}'.format(user.monthly_profit or 0) }}</span>
+            </div>
+          </div>
+          {% endfor %}
+          {% if top_users|length > 5 %}
+          <div style="text-align:center;margin-top:12px;">
+            <button id="show-all-rank-btn-mobile" class="styled-button">View All Rankings</button>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+    <!-- 会员收益排名弹窗 -->
+    <div id="rankings-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;">
+      <div style="background:#232B3E;border-radius:18px;max-width:900px;width:98vw;max-height:92vh;overflow:auto;padding:32px 18px 24px 18px;position:relative;">
+        <button onclick="closeRankingsModal()" style="position:absolute;right:18px;top:18px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;">×</button>
+        <h3 style="color:#FFD700;text-align:center;margin-bottom:24px;">All Member Rankings</h3>
+        <div class="row" id="rankings-modal-list"></div>
+      </div>
+    </div>
+    <style>
+    .rank-row:hover {
+        background: linear-gradient(90deg,#FFD70022 0%,#fffbe6 100%) !important;
+        box-shadow: 0 2px 12px #FFD70033;
+        transition: all 0.2s;
+    }
+    </style>
+    <!-- Video Courses -->
+    <div class="section">
+        <h2 class="card-title">Video Courses</h2>
+        <div id="videos-container" class="flex-row"></div>
+        <div style="text-align:center;margin-top:18px;">
+            <button id="show-all-videos-btn" class="styled-button">View All Videos</button>
+        </div>
+    </div>
+    <!-- Video Modal -->
+    <div id="videos-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;">
+        <div style="background:#232B3E;border-radius:18px;max-width:1100px;width:98vw;max-height:92vh;overflow:auto;padding:32px 18px 24px 18px;position:relative;">
+            <button onclick="closeVideosModal()" style="position:absolute;right:18px;top:18px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;">×</button>
+            <h3 style="color:#FFD700;text-align:center;margin-bottom:24px;">All Video Courses</h3>
+            <div class="row" id="videos-modal-list"></div>
+        </div>
+    </div>
+    <!-- Documents -->
+    <div class="section">
+        <h2 class="card-title">Documents</h2>
+        <div id="documents-container"></div>
+        <div style="text-align:center;margin-top:24px;">
+            <button id="show-all-documents-btn" class="styled-button" style="display:none;">View All Documents</button>
+        </div>
+    </div>
+    <!-- 文档弹窗Modal -->
+    <div id="documents-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;">
+        <div style="background:#232B3E;border-radius:18px;max-width:700px;width:96vw;max-height:90vh;overflow:auto;padding:32px 18px 24px 18px;position:relative;">
+            <button onclick="closeDocumentsModal()" style="position:absolute;right:18px;top:18px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;">×</button>
+            <h3 style="color:#FFD700;text-align:center;margin-bottom:24px;">All Documents</h3>
+            <div id="documents-modal-list"></div>
+            <div id="documents-modal-pagination" style="text-align:center;margin-top:18px;"></div>
+        </div>
+    </div>
+    <!-- 文档预览弹窗 -->
+    <div id="preview-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;">
+        <div style="position:relative;width:90vw;max-width:900px;height:90vh;margin:2% auto;background:#232B3E;border-radius:16px;padding:24px;">
+            <button onclick="closePreview()" style="position:absolute;right:24px;top:24px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">×</button>
+            <iframe id="preview-frame" style="width:100%;height:100%;border:none;border-radius:8px;"></iframe>
+        </div>
+    </div>
+    <!-- 会员协议与福利 -->
+    <section class="section vip-benefit-section">
+        <h2 class="card-title">Membership Agreement & Benefits</h2>
+        <div class="vip-benefit-subtitle" style="text-align:center;color:#b0c4e6;font-size:1.2rem;margin-bottom:48px;">Exclusive member benefits to help your wealth grow</div>
+        <!-- 会员福利卡片 -->
+        <div class="vip-benefit-grid">
+            <div class="vip-benefit-card">
+                <div class="benefit-icon-wrapper">
+                    <svg width="64" height="64" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" fill="url(#g1pro)"/>
+                        <path d="M10 34L20 20L28 28L38 12" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="34" r="2" fill="#FFD700"/>
+                        <circle cx="20" cy="20" r="2" fill="#FFD700"/>
+                        <circle cx="28" cy="28" r="2" fill="#FFD700"/>
+                        <circle cx="38" cy="12" r="2" fill="#FFD700"/>
+                        <defs>
+                            <radialGradient id="g1pro" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5" gradientTransform="matrix(48 0 0 48 0 0)" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFD700" stop-opacity="0.18"/>
+                                <stop offset="1" stop-color="#232B3E" stop-opacity="0.9"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h3 class="benefit-title">Professional Investment Strategies</h3>
+                <ul class="benefit-list">
+                    <li>Daily strategies from a senior team</li>
+                    <li>Personalized portfolio advice</li>
+                    <li>Real-time risk alerts</li>
+                </ul>
+            </div>
+            <div class="vip-benefit-card">
+                <div class="benefit-icon-wrapper">
+                    <svg width="64" height="64" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" fill="url(#g2pro)"/>
+                        <path d="M24 8L36 14V24C36 36 24 40 24 40C24 40 12 36 12 24V14L24 8Z" stroke="#FFD700" stroke-width="3" fill="none"/>
+                        <path d="M18 26L23 32L32 18" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <radialGradient id="g2pro" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5" gradientTransform="matrix(48 0 0 48 0 0)" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFD700" stop-opacity="0.18"/>
+                                <stop offset="1" stop-color="#232B3E" stop-opacity="0.9"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h3 class="benefit-title">Risk Protection Mechanism</h3>
+                <ul class="benefit-list">
+                    <li>Multiple risk control systems</li>
+                    <li>Loss compensation guarantee</li>
+                    <li>Fund security guarantee</li>
+                </ul>
+            </div>
+            <div class="vip-benefit-card">
+                <div class="benefit-icon-wrapper">
+                    <svg width="64" height="64" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" fill="url(#g3pro)"/>
+                        <path d="M12 36H36L31 16L24 28L17 16L12 36Z" fill="#FFD700" stroke="#FFD700" stroke-width="2"/>
+                        <circle cx="17" cy="16" r="2" fill="#FFD700"/>
+                        <circle cx="24" cy="28" r="2" fill="#FFD700"/>
+                        <circle cx="31" cy="16" r="2" fill="#FFD700"/>
+                        <defs>
+                            <radialGradient id="g3pro" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5" gradientTransform="matrix(48 0 0 48 0 0)" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFD700" stop-opacity="0.18"/>
+                                <stop offset="1" stop-color="#232B3E" stop-opacity="0.9"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h3 class="benefit-title">VIP Exclusive Services</h3>
+                <ul class="benefit-list">
+                    <li>One-on-one investment advisor</li>
+                    <li>Exclusive investment events</li>
+                    <li>Priority response service</li>
+                </ul>
+            </div>
+            <div class="vip-benefit-card">
+                <div class="benefit-icon-wrapper">
+                    <svg width="64" height="64" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="22" fill="url(#g4pro)"/>
+                        <rect x="12" y="16" width="24" height="10" rx="3" stroke="#FFD700" stroke-width="2.5" fill="none"/>
+                        <path d="M24 16V26" stroke="#FFD700" stroke-width="2.5"/>
+                        <circle cx="24" cy="12" r="2" fill="#FFD700"/>
+                        <defs>
+                            <radialGradient id="g4pro" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5" gradientTransform="matrix(48 0 0 48 0 0)" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFD700" stop-opacity="0.18"/>
+                                <stop offset="1" stop-color="#232B3E" stop-opacity="0.9"/>
+                            </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h3 class="benefit-title">Professional Training Support</h3>
+                <ul class="benefit-list">
+                    <li>Practical investment courses</li>
+                    <li>Skill improvement plans</li>
+                    <li>One-on-one expert guidance</li>
+                </ul>
+            </div>
+        </div>
+        <!-- 会员协议 -->
+        <div class="vip-agreement-section">
+            <div class="agreement-header">
+                <h3 class="agreement-title">Membership Agreement</h3>
+                <p class="agreement-desc">This platform is a paid service focused on providing members with professional investment strategies and market analysis. Members pay commissions based on actual profits. In the event of significant losses, the platform will compensate and share commissions according to the ratios shown in the membership level table.</p>
+            </div>
+            <!-- PC端表格对比 -->
+            <div class="agreement-table-section agreement-table-pc">
+                <h4 class="table-title">Membership Commission Mechanism</h4>
+                <div class="table-wrapper">
+                    <table class="vip-table">
+                        <thead>
+                            <tr>
+                                <th>Membership Level</th>
+                                <th>Fund Range</th>
+                                <th>Monthly Profit Ratio</th>
+                                <th>Commission Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="member-level">VIP</span></td>
+                                <td>Below $50,000</td>
+                                <td><span class="highlight">10%</span></td>
+                                <td><span class="highlight">20%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Gold Member</span></td>
+                                <td>$50,000 ~ $200,000</td>
+                                <td><span class="highlight">20%</span></td>
+                                <td><span class="highlight">15%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Diamond Member</span></td>
+                                <td>$200,000 ~ $1,000,000</td>
+                                <td><span class="highlight">30%</span></td>
+                                <td><span class="highlight">10%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Supreme Black Card</span></td>
+                                <td>Above $1,000,000</td>
+                                <td><span class="highlight">50%</span></td>
+                                <td><span class="highlight">5%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- 移动端卡片式展示（全新设计） -->
+            <div class="agreement-mobile-cards" style="display:none;">
+              <div class="mobile-section">
+                <div class="mobile-section-title">Membership Commission Mechanism</div>
+                <div class="mobile-card-list">
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge vip">VIP</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">Below $50,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Monthly Profit Ratio</span><span class="mobile-info-value">10%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Commission Ratio</span><span class="mobile-info-value">20%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge gold">Gold Member</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">$50,000 ~ $200,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Monthly Profit Ratio</span><span class="mobile-info-value">20%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Commission Ratio</span><span class="mobile-info-value">15%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge diamond">Diamond Member</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">$200,000 ~ $1,000,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Monthly Profit Ratio</span><span class="mobile-info-value">30%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Commission Ratio</span><span class="mobile-info-value">10%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge black">Supreme Black Card</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">Above $1,000,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Monthly Profit Ratio</span><span class="mobile-info-value">50%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Commission Ratio</span><span class="mobile-info-value">5%</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mobile-section">
+                <div class="mobile-section-title">Membership Compensation Mechanism</div>
+                <div class="mobile-card-list">
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge vip">VIP</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">Below $50,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Risk Ratio</span><span class="mobile-info-value">80%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Compensation Ratio</span><span class="mobile-info-value">30%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge gold">Gold Member</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">$50,000 ~ $200,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Risk Ratio</span><span class="mobile-info-value">60%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Compensation Ratio</span><span class="mobile-info-value">40%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge diamond">Diamond Member</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">$200,000 ~ $1,000,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Risk Ratio</span><span class="mobile-info-value">50%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Compensation Ratio</span><span class="mobile-info-value">50%</span></div>
+                  </div>
+                  <div class="mobile-card">
+                    <div class="mobile-badge-row"><span class="mobile-badge black">Supreme Black Card</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Fund Range</span><span class="mobile-info-value">Above $1,000,000</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Risk Ratio</span><span class="mobile-info-value">30%</span></div>
+                    <div class="mobile-info-row"><span class="mobile-info-label">Compensation Ratio</span><span class="mobile-info-value">80%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="agreement-table-section agreement-table-pc">
+                <h4 class="table-title">Membership Compensation Mechanism</h4>
+                <div class="table-wrapper">
+                    <table class="vip-table">
+                        <thead>
+                            <tr>
+                                <th>Membership Level</th>
+                                <th>Fund Range</th>
+                                <th>Risk Ratio</th>
+                                <th>Compensation Ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="member-level">VIP</span></td>
+                                <td>Below $50,000</td>
+                                <td><span class="highlight">70%</span></td>
+                                <td><span class="highlight">30%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Gold Member</span></td>
+                                <td>$50,000 ~ $200,000</td>
+                                <td><span class="highlight">60%</span></td>
+                                <td><span class="highlight">40%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Diamond Member</span></td>
+                                <td>$200,000 ~ $1,000,000</td>
+                                <td><span class="highlight">50%</span></td>
+                                <td><span class="highlight">50%</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="member-level">Supreme Black Card</span></td>
+                                <td>Above $1,000,000</td>
+                                <td><span class="highlight">50%</span></td>
+                                <td><span class="highlight">50%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="agreement-footer">
+                <a class="view-agreement-btn" href="https://rwlziuinlbazgoajkcme.supabase.co/storage/v1/object/public/documents//This%20contract%20is%20owned%20by%20Ventura.pdf" target="_blank" rel="noopener noreferrer" download style="display:block;text-decoration:none;">
+                    View Full Agreement
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- 页面内容结束，下面是JS代码 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = 'https://rwlziuinlbazgoajkcme.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3bHppdWlubGJhemdvYWprY21lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUxODAwNjIsImV4cCI6MjA2MDc1NjA2Mn0.Y1KiIiUXmDiDSFYFQLHmyd1Oe86SxSfvHJcKrJmz2gI';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+let allVideos = [];
+async function loadVideos() {
+    const { data: videos, error } = await supabase
+        .from('videos')
+        .select('*')
+        .order('last_update', { ascending: false });
+    allVideos = videos || [];
+    const container = document.getElementById('videos-container');
+    if (!container) return;
+    if (error) {
+        container.innerHTML = '<div style="color:red;padding:20px;text-align:center;">加载出错：' + error.message + '</div>';
+        return;
+    }
+    if (!videos || videos.length === 0) {
+        container.innerHTML = '<div style="color:#b0c4e6;padding:20px;text-align:center;">暂无视频课程</div>';
+        return;
+    }
+    // 根据屏幕宽度决定显示数量：移动端2个，PC端3个
+    const isMobile = window.innerWidth <= 768;
+    const showCount = isMobile ? 2 : 3;
+    container.innerHTML = videos.slice(0, showCount).map((video, idx) => videoCardHtml(video, idx)).join('');
+}
+
+function formatEasternTime(dateStr) {
+    try {
+        const date = new Date(dateStr);
+        const options = {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+    } catch {
+        return dateStr;
+    }
+}
+
+function videoCardHtml(video, idx) {
+    return `<div class="card" style="flex:1;min-width:320px;max-width:520px;">
+        <div style="height:360px;background:#232e4a;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+            <video id="video-${idx}" src="${video.video_url}" controls style="width:100%;height:360px;border-radius:12px;background:#232e4a;"></video>
+        </div>
+        <h4 style="color:#fff;margin-bottom:16px;">${video.title || ''}</h4>
+        <div style="color:#b0c4e6;margin-bottom:12px;">${video.description || ''}</div>
+        <div style="color:#b0c4e6;margin-bottom:12px;">Last Updated: ${video.last_update ? formatEasternTime(video.last_update) : ''}</div>
+        <button class="ant-btn ant-btn-primary styled-button w-100" onclick="playVideo('video-${idx}')">Start Learning</button>
+    </div>`;
+}
+
+// 弹窗相关
+function renderAllVideosModal() {
+    const modalList = document.getElementById('videos-modal-list');
+    if (!modalList) return;
+    modalList.innerHTML = allVideos.map((video, idx) => `<div class='col-md-4 mb-4'>${videoCardHtml(video, idx)}</div>`).join('');
+}
+
+document.getElementById('show-all-videos-btn').onclick = function() {
+    renderAllVideosModal();
+    document.getElementById('videos-modal').style.display = 'flex';
+};
+
+function closeVideosModal() {
+    document.getElementById('videos-modal').style.display = 'none';
+}
+
+function playVideo(id) {
+    const v = document.getElementById(id);
+    if (v) { v.play(); v.focus(); }
+}
+
+document.addEventListener('DOMContentLoaded', loadVideos);
+
+// 添加窗口大小变化监听
+window.addEventListener('resize', loadVideos);
+
+let allDocuments = [];
+function renderDocumentsList(docs, container, showPreviewBtn = false) {
+    container.innerHTML = docs.map(doc => `
+        <div class="card mb-24">
+            <div style="display:flex;align-items:center;gap:24px;">
+                <span class="avatar-glow" style="width:64px;height:64px;display:inline-flex;align-items:center;justify-content:center;font-size:2.5rem;background:#232b3e;margin-right:8px;">
+                    <svg viewBox="64 64 896 896" focusable="false" data-icon="file-text" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                        <path d="M534 352V136H196c-17.7 0-32 14.3-32 32v688c0 17.7 14.3 32 32 32h632c17.7 0 32-14.3 32-32V352H534zm-64 0H264V200h206v152zm-80 120h160c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8H390c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8zm0 120h160c4.4 0 8 3.6 8 8v48c0 4.4-3.6 8-8 8H390c-4.4 0-8-3.6-8-8v-48c0-4.4 3.6-8 8-8z"></path>
+                    </svg>
+                </span>
+                <div style="flex:1;">
+                    <h4 style="color:#fff;margin-bottom:12px;">${doc.title || 'Untitled Document'}</h4>
+                    <div style="color:#b0c4e6;margin-bottom:16px;">${doc.description || 'No description'}</div>
+                    <div style="display:flex;align-items:center;gap:16px;color:#b0c4e6;font-size:0.9rem;">
+                        <span>Last Updated: ${doc.last_update ? new Date(doc.last_update).toLocaleString() : ''}</span>
+                    </div>
+                    <div style="margin-top:16px;display:flex;gap:16px;">
+                        <a href="${doc.file_url}" download target="_blank" style="color:#FFD700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+                            <svg viewBox="64 64 896 896" focusable="false" data-icon="download" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                                <path d="M505.7 661a8 8 0 0012.6 0l112-141.7c4.1-5.2.4-12.9-6.3-12.9h-74.1V168c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v338.3H400c-6.7 0-10.4 7.7-6.3 12.9l112 141.8z"></path>
+                                <path d="M878 626h-60c-4.4 0-8 3.6-8 8v154H214V634c0-4.4-3.6-8-8-8h-60c-4.4 0-8 3.6-8 8v198c0 17.7 14.3 32 32 32h684c17.7 0 32-14.3 32-32V634c0-4.4-3.6-8-8-8z"></path>
+                            </svg>
+                            Download
+                        </a>
+                        ${showPreviewBtn ? `<button onclick="previewDocument('${doc.file_url}')" class="styled-button" style="padding:4px 18px;font-size:1rem;">Preview</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadDocuments() {
+    const { data: documents, error } = await supabase
+        .from('documents')
+        .select('*')
+        .order('last_update', { ascending: false });
+    allDocuments = documents || [];
+    const container = document.getElementById('documents-container');
+    const showAllBtn = document.getElementById('show-all-documents-btn');
+    if (!container) return;
+    if (error) {
+        container.innerHTML = '<div style="color:red;padding:20px;text-align:center;">加载出错：' + error.message + '</div>';
+        showAllBtn.style.display = 'none';
+        return;
+    }
+    if (!documents || documents.length === 0) {
+        container.innerHTML = '<div style="color:#b0c4e6;padding:20px;text-align:center;">No documents available</div>';
+        showAllBtn.style.display = 'none';
+        return;
+    }
+    // 只显示前2个
+    renderDocumentsList(documents.slice(0,2), container, true);
+    showAllBtn.style.display = documents.length > 2 ? 'inline-block' : 'none';
+}
+
+document.getElementById('show-all-documents-btn').onclick = function() {
+    openDocumentsModal();
+};
+
+// 弹窗相关
+function openDocumentsModal() {
+    const modal = document.getElementById('documents-modal');
+    modal.style.display = 'flex';
+    renderDocumentsModalPage(1);
+}
+function closeDocumentsModal() {
+    document.getElementById('documents-modal').style.display = 'none';
+}
+// 分页渲染
+function renderDocumentsModalPage(page) {
+    const pageSize = 6;
+    const start = (page-1)*pageSize;
+    const docs = allDocuments.slice(start, start+pageSize);
+    const list = document.getElementById('documents-modal-list');
+    renderDocumentsList(docs, list, true);
+    // 分页按钮
+    const totalPages = Math.ceil(allDocuments.length/pageSize);
+    const pagDiv = document.getElementById('documents-modal-pagination');
+    pagDiv.innerHTML = '';
+    if (totalPages > 1) {
+        for(let i=1;i<=totalPages;i++) {
+            pagDiv.innerHTML += `<button onclick="renderDocumentsModalPage(${i})" class="styled-button" style="margin:0 4px;${i===page?'background:#FFD700;color:#232B3E;':''}">${i}</button>`;
+        }
+    }
+}
+// 预览功能
+function previewDocument(url) {
+    // 自动判断文件类型
+    const ext = url.split('.').pop().toLowerCase().split('?')[0];
+    if (["pdf","png","jpg","jpeg","gif","bmp","webp"].includes(ext)) {
+        // 直接iframe预览
+        document.getElementById('preview-modal').style.display = 'flex';
+        const frame = document.getElementById('preview-frame');
+        frame.style.display = '';
+        frame.src = url;
+        frame.parentNode.querySelector('.preview-unsupported')?.remove();
+    } else if (["doc","docx","xls","xlsx","ppt","pptx","wps"].includes(ext)) {
+        // Office文档新开标签页用Office Online Viewer
+        const previewUrl = 'https://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(url);
+        window.open(previewUrl, '_blank');
+    } else {
+        // 不支持的类型
+        document.getElementById('preview-modal').style.display = 'flex';
+        const frame = document.getElementById('preview-frame');
+        frame.style.display = 'none';
+        frame.src = '';
+        if (!frame.parentNode.querySelector('.preview-unsupported')) {
+            const div = document.createElement('div');
+            div.className = 'preview-unsupported';
+            div.style = 'color:#FFD700;text-align:center;font-size:1.2rem;padding:48px;';
+            div.innerText = '该文件类型暂不支持在线预览，请下载后查看';
+            frame.parentNode.appendChild(div);
+        }
+    }
+}
+function closePreview() {
+    document.getElementById('preview-modal').style.display = 'none';
+    document.getElementById('preview-frame').src = '';
+}
+
+document.addEventListener('DOMContentLoaded', loadDocuments);
+</script>
+<!-- 上传交易记录弹窗Modal -->
+<div class="modal fade" id="tradeUploadModal" tabindex="-1" aria-labelledby="tradeUploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="trade-upload-form" method="POST" action="/api/upload-trade">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tradeUploadModalLabel">Upload Trade Record</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="symbol" class="form-label">Symbol</label>
+            <input name="symbol" id="symbol" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="entry_price" class="form-label">Entry Price</label>
+            <input name="entry_price" id="entry_price" type="number" step="0.01" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="size" class="form-label">Size</label>
+            <input name="size" id="size" type="number" step="0.01" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="entry_date" class="form-label">Entry Date</label>
+            <input name="entry_date" id="entry_date" type="datetime-local" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="asset_type" class="form-label">Asset Type</label>
+            <select name="asset_type" id="asset_type" class="form-control" required>
+              <option value="">--Please select--</option>
+              <option value="stock">Stock</option>
+              <option value="crypto">Crypto</option>
+              <option value="forex">Forex</option>
+              <option value="fund">Fund</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="direction" class="form-label">Direction</label>
+            <select name="direction" id="direction" class="form-control" required>
+              <option value="">--Please select--</option>
+              <option value="long">Long</option>
+              <option value="short">Short</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="trade_type" class="form-label">Trade Type</label>
+            <input name="trade_type" id="trade_type" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="trade_image" class="form-label">Trade Image</label>
+            <div class="custom-file">
+              <input type="file" name="trade_image" id="trade_image" class="form-control" accept="image/*" style="display:none;">
+              <button type="button" id="customFileBtn" class="btn btn-outline-primary w-100">Choose File</button>
+              <span id="customFileName" style="display:block;margin-top:8px;color:#FFD700;text-align:center;">No file chosen</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+// 让按钮弹出Modal
+const uploadBtn = document.querySelector('.styled-button, .ant-btn-primary');
+if(uploadBtn && uploadBtn.textContent.includes('Upload Trade Record')){
+  uploadBtn.setAttribute('data-bs-toggle', 'modal');
+  uploadBtn.setAttribute('data-bs-target', '#tradeUploadModal');
+}
+</script>
+<!-- 需要引入Bootstrap 5的JS和CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 平仓弹窗Modal -->
+<div class="modal fade" id="closeTradeModal" tabindex="-1" aria-labelledby="closeTradeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="close-trade-form" method="POST" action="/api/update-trade">
+        <input type="hidden" name="id" id="close-trade-id">
+        <div class="modal-header">
+          <h5 class="modal-title" id="closeTradeModalLabel">Close (Exit)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="exit_price" class="form-label">Exit Price</label>
+            <input name="exit_price" id="exit_price" type="number" step="0.01" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="exit_date" class="form-label">Exit Date</label>
+            <input name="exit_date" id="exit_date" type="datetime-local" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function openCloseTradeModal(tradeId) {
+  document.getElementById('close-trade-id').value = tradeId;
+  document.getElementById('exit_price').value = '';
+  document.getElementById('exit_date').value = '';
+  var modal = new bootstrap.Modal(document.getElementById('closeTradeModal'));
+  modal.show();
+}
+</script>
+<script>
+// 获取当前价格的API（可根据实际情况修改）
+async function getCurrentPrice(symbol) {
+  try {
+    const resp = await fetch(`/api/price?symbol=${encodeURIComponent(symbol)}`);
+    const data = await resp.json();
+    if (data.success && data.price) return parseFloat(data.price);
+  } catch (e) {}
+  return null;
+}
+async function updateCurrentPrices() {
+  let holdingProfit = 0;
+  const rows = document.querySelectorAll('tr[data-trade-id]');
+  for (const row of rows) {
+    const symbol = row.getAttribute('data-symbol');
+    const tradeId = row.getAttribute('data-trade-id');
+    if (!symbol || !tradeId) continue;
+    if (row.getAttribute('data-closed') === '1') continue;
+    const price = await getCurrentPrice(symbol);
+    if (price) {
+      row.querySelector('.current-price-cell').textContent = price;
+      const entryPrice = parseFloat(row.querySelector('.entry-price-cell').textContent);
+      const size = parseFloat(row.querySelector('.size-cell').textContent);
+      const profit = (price - entryPrice) * size;
+      holdingProfit += profit;
+      row.querySelector('.profit-amount-cell').textContent = profit.toFixed(2);
+      const profitPct = ((price - entryPrice) / entryPrice * 100).toFixed(1);
+      row.querySelector('.profit-pct-cell').innerHTML = `<span class="trade-profit-table ${profitPct >= 0 ? 'up' : 'down'}">${profitPct > 0 ? '+' : ''}${profitPct}%</span>`;
+      fetch('/api/update-trade-price', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: tradeId, current_price: price})
+      });
+    }
+  }
+  // 注释掉前端对持仓利润卡片的赋值，防止覆盖后端渲染值
+  // const holdingProfitCard = document.getElementById('holding-profit-card');
+  // if (holdingProfitCard) {
+  //   holdingProfitCard.innerHTML = holdingProfit.toFixed(2) + '<span class="glass-stat-unit">$</span>';
+  // }
+}
+window.addEventListener('DOMContentLoaded', updateCurrentPrices);
+</script>
+<script>
+function highlightProfitAmountCells() {
+  document.querySelectorAll('.profit-amount-cell').forEach(cell => {
+    const val = parseFloat(cell.textContent);
+    cell.classList.remove('positive', 'negative', 'zero');
+    if (!isNaN(val)) {
+      if (val > 0) cell.classList.add('positive');
+      else if (val < 0) cell.classList.add('negative');
+      else cell.classList.add('zero');
+    }
+  });
+}
+highlightProfitAmountCells();
+// 保证动态更新后也高亮
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(highlightProfitAmountCells, 500);
+});
+</script>
+<!-- 设置弹窗Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- 修改密码表单 -->
+        <form id="change-password-form" method="POST" action="/api/change-password" class="mb-4">
+          <div class="mb-3">
+            <label for="old_password" class="form-label">Current Password</label>
+            <input name="old_password" id="old_password" type="password" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="new_password" class="form-label">New Password</label>
+            <input name="new_password" id="new_password" type="password" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save Password</button>
+        </form>
+        <!-- 设置初始资金表单 -->
+        <form id="set-asset-form" method="POST" action="/api/set-asset" class="mb-4" style="display:none;">
+          <!-- 已隐藏，彻底删除可直接移除此form及相关JS -->
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('settings-btn').onclick = function() {
+  var modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+  modal.show();
+};
+</script>
+<script>
+document.getElementById('change-password-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const resp = await fetch('/api/change-password', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    });
+    const res = await resp.json();
+    if (res.success) {
+        alert(res.message || 'Password changed successfully!');
+        var modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        if (modal) modal.hide();
+        this.reset();
+        location.reload();
+    } else {
+        alert(res.message || 'Password change failed!');
+    }
+};
+</script>
+<script>
+document.getElementById('set-asset-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const resp = await fetch('/api/set-asset', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    });
+    const res = await resp.json();
+    if (res.success) {
+        alert(res.message || 'Initial asset set successfully!');
+        var modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        if (modal) modal.hide();
+        this.reset();
+        location.reload();
+    } else {
+        alert(res.message || 'Failed to set initial asset!');
+    }
+};
+</script>
+<!-- 头像预览与更换弹窗 -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#232b3e;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="avatarModalLabel">Avatar Preview & Change</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body center">
+        <img id="avatar-preview-img" src="{{ trader_info.avatar_url if trader_info.avatar_url else 'https://api.dicebear.com/7.x/avataaars/svg?seed=1' }}" alt="avatar" style="width:180px;height:180px;border-radius:50%;background:#232b3e;box-shadow:0 0 24px #FFD70099;">
+        <form id="upload-avatar-form" method="POST" action="/api/upload-avatar" enctype="multipart/form-data" style="margin-top:24px;">
+          <label class="btn btn-secondary w-100" style="margin-bottom:12px;cursor:pointer;">
+            Choose File
+            <input name="avatar" id="avatar" type="file" accept="image/*" class="form-control" required style="display:none;">
+          </label>
+          <span id="avatar-file-name" style="display:block;margin-bottom:12px;color:#FFD700;text-align:center;"></span>
+          <button type="submit" class="btn btn-primary w-100">Change Avatar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('avatar').onchange = function() {
+  var fileName = this.files[0] ? this.files[0].name : '';
+  document.getElementById('avatar-file-name').textContent = fileName;
+};
+</script>
+<script>
+document.getElementById('trade-upload-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    // 1. 先上传交易记录（不带图片）
+    const resp = await fetch('/api/upload-trade', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+    const res = await resp.json();
+    if (!res.success) {
+      alert(res.message || 'Upload failed!');
+      return;
+    }
+    const tradeId = res.trade_id;
+
+    // 2. 再上传图片（如有）
+    const imageInput = document.getElementById('trade_image');
+    if (imageInput.files.length > 0 && tradeId) {
+      const imgForm = new FormData();
+      imgForm.append('trade_id', tradeId);
+      imgForm.append('image', imageInput.files[0]);
+      const imgResp = await fetch('/api/admin/trade/upload-image', {
+        method: 'POST',
+        body: imgForm,
+        credentials: 'include'
+      });
+      const imgData = await imgResp.json();
+      if (!imgData.success) {
+        alert('图片上传失败: ' + (imgData.message || ''));
+        return;
+      }
+    }
+
+    alert(res.message || 'Upload successful!');
+    var modal = bootstrap.Modal.getInstance(document.getElementById('tradeUploadModal'));
+    if (modal) modal.hide();
+    location.reload();
+};
+</script>
+<script>
+document.getElementById('close-trade-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const resp = await fetch('/api/update-trade', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    });
+    const res = await resp.json();
+    if (res.success) {
+        alert(res.message || 'Closed successfully!');
+        var modal = bootstrap.Modal.getInstance(document.getElementById('closeTradeModal'));
+        if (modal) modal.hide();
+        location.reload();
+    } else {
+        alert(res.message || 'Close failed!');
+    }
+};
+</script>
+<script>
+// 渲染全部排名弹窗内容
+function renderAllRankingsModal() {
+  const modalList = document.getElementById('rankings-modal-list');
+  if (!modalList) return;
+  // 取前50名
+  const users = {{ top_users[:50]|tojson }};
+  // 会员等级中英文映射
+  const levelMap = {
+    '黄金会员': 'Gold Member',
+    '钻石会员': 'Diamond Member',
+    '至尊黑卡': 'Supreme Black Card',
+    '普通会员': 'Regular Member',
+    'VIP': 'Regular Member',
+    'Gold Member': 'Gold Member',
+    'Diamond Member': 'Diamond Member',
+    'Supreme Black Card': 'Supreme Black Card',
+    'Regular Member': 'Regular Member',
+    '会员': 'VIP',
+  };
+  modalList.innerHTML = `<table class='ant-table w-100 rankings-modal-table' style='border-radius:16px;overflow:hidden;'>
+    <thead>
+      <tr style="background:#232e4a;">
+        <th style='text-align:center;color:#FFD700;font-size:1.1rem;font-weight:900;'>Rank</th>
+        <th style='text-align:left;color:#FFD700;font-size:1.1rem;font-weight:900;'>Avatar</th>
+        <th style='text-align:left;color:#FFD700;font-size:1.1rem;font-weight:900;'>Member</th>
+        <th style='text-align:left;color:#FFD700;font-size:1.1rem;font-weight:900;'>Membership Level</th>
+        <th style='text-align:right;color:#FFD700;font-size:1.1rem;font-weight:900;'>Total Profit ($)</th>
+        <th style='text-align:right;color:#FFD700;font-size:1.1rem;font-weight:900;'>Monthly Profit ($)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${users.map((user, idx) => `
+        <tr class='rank-row' style='border-bottom:1px solid #222;background:linear-gradient(90deg,#232B3E 80%,#232e4a 100%);'>
+          <td style='text-align:center;font-weight:900;'>
+            <span style='font-size:1.2rem;${idx===0?'color:#FFD700;':idx===1?'color:#b0c4e6;':idx===2?'color:#faad14;':'color:#fff;'}'>${idx+1}</span>
+          </td>
+          <td style='text-align:left;'>
+            <img src="${user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #FFD700;box-shadow:0 0 6px #FFD70033;" alt="${user.username}">
+          </td>
+          <td style='text-align:left;font-weight:700;font-size:1.05rem;letter-spacing:1px;color:#fff;'>${user.username}</td>
+          <td style='text-align:left;'>
+            <span class="membership-badge ${user.membership_level && user.membership_level.toLowerCase().replace(/ /g, '-') || ''}" style="font-size:1.05rem;font-weight:900;padding:4px 14px;border-radius:16px;box-shadow:0 0 8px #FFD70033;letter-spacing:1px;background:linear-gradient(90deg,#FFD700 60%,#FFB300 100%);color:#232B3E;">
+              ${levelMap[user.membership_level] || user.membership_level}
+            </span>
+          </td>
+          <td style='text-align:right;font-weight:900;'>
+            <span style='font-size:1.05rem;${user.total_profit>0?'color:#00ffae;':user.total_profit<0?'color:#ff4d4f;':'color:#b0c4e6;'}'>${(user.total_profit||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+          </td>
+          <td style='text-align:right;font-weight:900;'>
+            <span style='font-size:1.05rem;${user.monthly_profit>0?'color:#52c41a;':user.monthly_profit<0?'color:#ff4d4f;':'color:#b0c4e6;'}'>${(user.monthly_profit||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+// 打开弹窗
+function openRankingsModal() {
+  renderAllRankingsModal();
+  document.getElementById('rankings-modal').style.display = 'flex';
+}
+function closeRankingsModal() {
+  document.getElementById('rankings-modal').style.display = 'none';
+}
+document.getElementById('show-all-rank-btn') && (document.getElementById('show-all-rank-btn').onclick = openRankingsModal);
+document.getElementById('show-all-rank-btn-mobile') && (document.getElementById('show-all-rank-btn-mobile').onclick = openRankingsModal);
+</script>
+<script>
+function formatUSTime(dateStr) {
+    if (!dateStr || dateStr === '-') return '-';
+    try {
+        // 支持ISO字符串和已格式化字符串
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const options = {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+    } catch {
+        return dateStr;
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.us-time').forEach(function(el) {
+        const raw = el.getAttribute('data-time');
+        if (raw && raw !== '-' && raw.length > 6) {
+            el.textContent = formatUSTime(raw);
+        }
+    });
+    // 单卡片居中美化
+    var cards = document.querySelectorAll('.vip-trade-cards-blackgold');
+    cards.forEach(function(cardList) {
+      // 只统计可见卡片（排除空div等）
+      var cardCount = Array.from(cardList.children).filter(function(child){
+        return child.classList && child.classList.contains('vip-trade-card-blackgold');
+      }).length;
+      if (cardCount === 1) {
+        cardList.classList.add('single-card');
+      } else {
+        cardList.classList.remove('single-card');
+      }
+    });
+});
+</script>
+<script>
+document.getElementById('avatar-preview-trigger').onclick = function() {
+  var modal = new bootstrap.Modal(document.getElementById('avatarModal'));
+  modal.show();
+};
+</script>
+<script>
+document.getElementById('upload-avatar-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const resp = await fetch('/api/upload-avatar', {
+    method: 'POST',
+    body: formData,
+    credentials: 'include'
+  });
+  const res = await resp.json();
+  if (res.success) {
+    // 上传成功后直接刷新页面
+    location.reload();
+  } else {
+    alert(res.message || 'Avatar upload failed!');
+  }
+};
+</script>
+<script>
+function openAgreementPreview() {
+    const url = 'https://rwlziuinlbazgoajkcme.supabase.co/storage/v1/object/public/documents//This%20contract%20is%20owned%20by%20Ventura.pdf';
+    document.getElementById('preview-modal').style.display = 'flex';
+    document.getElementById('preview-frame').src = url;
+    document.getElementById('download-link').href = url;
+}
+function closePreview() {
+    document.getElementById('preview-modal').style.display = 'none';
+    document.getElementById('preview-frame').src = '';
+}
+</script>
+<!-- 在预览弹窗中添加下载按钮 -->
+<div id="preview-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;">
+    <div style="position:relative;width:90vw;max-width:900px;height:90vh;margin:2% auto;background:#232B3E;border-radius:16px;padding:24px;">
+        <button onclick="closePreview()" style="position:absolute;right:24px;top:24px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">×</button>
+        <a id="download-link" href="#" download style="position:absolute;left:24px;top:24px;background:#FFD700;color:#232B3E;padding:8px 18px;border-radius:8px;font-weight:700;text-decoration:none;">下载协议</a>
+        <iframe id="preview-frame" style="width:100%;height:100%;border:none;border-radius:8px;"></iframe>
+    </div>
+</div>
+
+{# 弹窗显示全部交易 #}
+<div class="modal fade" id="allTradesModal" tabindex="-1" aria-labelledby="allTradesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content" style="max-height:90vh;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="allTradesModalLabel">All Trade Records</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="overflow-x:auto;">
+        <div style="min-width:900px;">
+          <table class="vip-table table table-striped table-hover" style="width:100%;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Type</th>
+                <th>Entry Price</th>
+                <th>Current Price</th>
+                <th>Quantity</th>
+                <th>Exit Price</th>
+                <th>Exit Date</th>
+                <th>P&L Amount</th>
+                <th>P&L Ratio</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in trades %}
+              <tr>
+                <td>{{ t.entry_date[:10] if t.entry_date else '-' }}</td>
+                <td>{{ t.symbol or '-' }}</td>
+                <td>
+                  {% if t.exit_price %}
+                    <span class="trade-type-table sell">Sell</span>
+                  {% else %}
+                    <span class="trade-type-table buy">Buy</span>
+                  {% endif %}
+                </td>
+                <td>{{ t.entry_price or '-' }}</td>
+                <td>{{ t.current_price or '-' }}</td>
+                <td>{{ t.size or '-' }}</td>
+                <td>{{ t.exit_price or '-' }}</td>
+                <td>{{ t.exit_date[:10] if t.exit_date else '-' }}</td>
+                <td>
+                  {% if t.exit_price %}
+                    {{ '%.2f' % ((t.exit_price - t.entry_price) * t.size) }}
+                  {% elif t.current_price %}
+                    {{ '%.2f' % ((t.current_price - t.entry_price) * t.size) }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td>
+                  {% set profit = (t.exit_price or t.current_price or 0) - (t.entry_price or 0) %}
+                  {% set profit_pct = (profit / t.entry_price * 100) if t.entry_price else 0 %}
+                  <span class="trade-profit-table {{ 'up' if profit_pct >= 0 else 'down' }}">
+                    {{ '{:+.1f}%'.format(profit_pct) }}
+                  </span>
+                </td>
+                <td>
+                  {% if not t.exit_price %}
+                    <button class="btn btn-sm btn-warning" onclick="openCloseTradeModal('{{ t.id }}')">Close</button>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@media (max-width: 900px) {
+  .modal-xl {
+    max-width: 98vw;
+    margin: 0 auto;
+  }
+  .modal-content {
+    max-height: 90vh;
+  }
+  .modal-body {
+    padding: 0.5rem;
+  }
+  .vip-table {
+    font-size: 0.95rem;
+  }
+}
+.modal-body {
+  overflow-x: auto;
+}
+</style>
+
+<script>
+function showAllTradesModal() {
+  var modal = new bootstrap.Modal(document.getElementById('allTradesModal'));
+  modal.show();
+}
+</script>
+<script>
+document.getElementById('customFileBtn').onclick = function() {
+  document.getElementById('trade_image').click();
+};
+document.getElementById('trade_image').onchange = function() {
+  var fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+  document.getElementById('customFileName').textContent = fileName;
+};
+</script>
+</body>
+</html>

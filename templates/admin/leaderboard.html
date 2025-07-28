@@ -1,0 +1,240 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">排行榜管理</h3>
+                    <button class="btn btn-primary float-right" data-toggle="modal" data-target="#addRecordModal">
+                        添加记录
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>头像</th>
+                                <th>名字</th>
+                                <th>用户ID</th>
+                                <th>盈利金额</th>
+                                <th>胜率</th>
+                                <th>交易次数</th>
+                                <th>更新时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardList">
+                            <!-- 排行榜数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加记录模态框 -->
+<div class="modal fade" id="addRecordModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">添加排行榜记录</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addRecordForm">
+                    <div class="form-group">
+                        <label>用户ID</label>
+                        <input type="text" class="form-control" name="user_id" required>
+                    </div>
+                    <div class="form-group">
+                        <label>盈利金额</label>
+                        <input type="number" class="form-control" name="total_profit" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>胜率 (%)</label>
+                        <input type="number" class="form-control" name="win_rate" min="0" max="100" step="0.01" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑记录模态框 -->
+<div class="modal fade" id="editRecordModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑排行榜记录</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editRecordForm">
+                    <input type="hidden" name="record_id">
+                    <div class="form-group">
+                        <label>头像</label>
+                        <img class="avatar" src="{{ trader.profile_image_url }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;background:#eee;" onerror="this.src='{{ DEFAULT_AVATAR_URL }}'"/>
+                    </div>
+                    <div class="form-group">
+                        <label>名字</label>
+                        <input type="text" class="form-control" name="trader_name">
+                    </div>
+                    <div class="form-group">
+                        <label>盈利金额</label>
+                        <input type="number" class="form-control" name="total_profit" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>胜率 (%)</label>
+                        <input type="number" class="form-control" name="win_rate" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>交易次数</label>
+                        <input type="number" class="form-control" name="total_trades" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="updateRecord()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 加载排行榜数据
+function loadLeaderboard() {
+    fetch('/api/admin/leaderboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('leaderboardList');
+                tbody.innerHTML = '';
+                
+                data.leaderboard.forEach((record, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td><img src="${record.profile_image_url || ''}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;background:#eee;" onerror="this.src='https://via.placeholder.com/40'"/></td>
+                        <td>${record.trader_name || ''}</td>
+                        <td>${record.user_id}</td>
+                        <td>${record.total_profit?.toFixed(2) || '0.00'}</td>
+                        <td>${record.win_rate?.toFixed(2) || '0.00'}%</td>
+                        <td>${record.total_trades || 0}</td>
+                        <td>${record.updated_at || ''}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="showEditModal('${record.id}', '${record.profile_image_url}', '${record.trader_name}', ${record.total_profit}, ${record.win_rate}, ${record.total_trades})">编辑</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRecord('${record.id}')">删除</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        });
+}
+
+// 添加记录
+function addRecord() {
+    const form = document.getElementById('addRecordForm');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('/api/admin/leaderboard', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addRecordModal').modal('hide');
+            form.reset();
+            loadLeaderboard();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+// 显示编辑模态框
+function showEditModal(recordId, avatarUrl, traderName, profit, winRate, totalTrades) {
+    const form = document.getElementById('editRecordForm');
+    form.querySelector('input[name="record_id"]').value = recordId;
+    form.querySelector('input[name="profile_image_url"]').value = avatarUrl;
+    form.querySelector('input[name="trader_name"]').value = traderName;
+    form.querySelector('input[name="total_profit"]').value = profit;
+    form.querySelector('input[name="win_rate"]').value = winRate;
+    form.querySelector('input[name="total_trades"]').value = totalTrades;
+    $('#editRecordModal').modal('show');
+}
+
+// 更新记录
+function updateRecord() {
+    const form = document.getElementById('editRecordForm');
+    const formData = new FormData(form);
+    const data = {
+        id: formData.get('record_id'),
+        profile_image_url: formData.get('profile_image_url'),
+        trader_name: formData.get('trader_name'),
+        total_profit: parseFloat(formData.get('total_profit')),
+        win_rate: parseFloat(formData.get('win_rate')),
+        total_trades: parseInt(formData.get('total_trades'))
+    };
+    
+    fetch('/api/admin/leaderboard', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#editRecordModal').modal('hide');
+            form.reset();
+            loadLeaderboard();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+// 删除记录
+function deleteRecord(recordId) {
+    if (confirm('确定要删除这条记录吗？')) {
+        fetch(`/api/admin/leaderboard?id=${recordId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadLeaderboard();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+// 页面加载完成后加载排行榜数据
+document.addEventListener('DOMContentLoaded', loadLeaderboard);
+</script>
+{% endblock %} 

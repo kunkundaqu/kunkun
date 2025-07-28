@@ -1,0 +1,307 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="main-content">
+    <div class="container">
+        <!-- 策略编辑卡片 -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Today's Trading Strategy
+                </h5>
+                <button class="btn btn-primary" onclick="saveStrategy()">
+                    <i class="bi bi-save me-1"></i>Save Strategy
+                </button>
+            </div>
+            <div class="card-body">
+                <form id="strategyForm">
+                    <input type="hidden" id="strategyId">
+                    <div class="mb-3">
+                        <label for="marketAnalysis" class="form-label">Market Analysis</label>
+                        <textarea class="form-control" id="marketAnalysis" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Focus Areas</label>
+                        <div id="focusAreas">
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control focus-area" required>
+                                <button type="button" class="btn btn-outline-danger" onclick="removeFocusArea(this)">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addFocusArea()">
+                            <i class="bi bi-plus"></i>Add Focus Area
+                        </button>
+                    </div>
+                    <div class="mb-3">
+                        <label for="riskWarning" class="form-label">Risk Warning</label>
+                        <textarea class="form-control" id="riskWarning" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- 历史记录卡片 -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Strategy History
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="history-section mt-4">
+                    <h3>Strategy History</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Updated Time</th>
+                                    <th>Market Analysis</th>
+                                    <th>Focus Areas</th>
+                                    <th>Risk Warning</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- 历史记录将通过JavaScript动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 查看历史记录的模态框 -->
+        <div class="modal fade" id="historyModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Strategy History Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Market Analysis</label>
+                            <p id="historyMarketAnalysis" class="form-control-plaintext"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Focus Areas</label>
+                            <ul id="historyFocusAreas" class="list-group"></ul>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Risk Warning</label>
+                            <p id="historyRiskWarning" class="form-control-plaintext"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Update Information</label>
+                            <p id="historyUpdateInfo" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    // 页面加载完成后获取当前策略
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCurrentStrategy();
+        loadStrategyHistory();
+    });
+
+    // 加载当前策略
+    function loadCurrentStrategy() {
+        fetch('/api/admin/strategy')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.strategy) {
+                    document.getElementById('strategyId').value = data.strategy.id;
+                    document.getElementById('marketAnalysis').value = data.strategy.market_analysis;
+                    document.getElementById('riskWarning').value = data.strategy.risk_warning;
+                    
+                    // 清空并重新添加关注点
+                    const focusAreas = document.getElementById('focusAreas');
+                    focusAreas.innerHTML = '';
+                    
+                    // 确保 trading_focus 是数组
+                    let tradingFocus = data.strategy.trading_focus;
+                    if (typeof tradingFocus === 'string') {
+                        try {
+                            tradingFocus = JSON.parse(tradingFocus);
+                        } catch (e) {
+                            tradingFocus = [tradingFocus];
+                        }
+                    }
+                    
+                    tradingFocus.forEach(focus => {
+                        addFocusArea(focus);
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // 加载策略历史
+    function loadStrategyHistory() {
+        fetch('/api/admin/strategy/history', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const historyTableBody = document.getElementById('historyTableBody');
+                historyTableBody.innerHTML = '';
+                
+                data.history.forEach(record => {
+                    const row = document.createElement('tr');
+                    
+                    // 格式化时间
+                    const date = new Date(record.modified_at);
+                    const formattedDate = date.toLocaleString('zh-CN');
+                    
+                    // 格式化关注重点
+                    const focusPoints = Array.isArray(record.trading_focus) 
+                        ? record.trading_focus.join('<br>') 
+                        : record.trading_focus;
+                    
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${record.market_analysis}</td>
+                        <td>${focusPoints}</td>
+                        <td>${record.risk_warning}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteStrategy('${record.id}')">
+                                删除
+                            </button>
+                        </td>
+                    `;
+                    
+                    historyTableBody.appendChild(row);
+                });
+            } else {
+                showError('Failed to load history: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Failed to load history');
+        });
+    }
+
+    // 添加关注点
+    function addFocusArea(value = '') {
+        const focusAreas = document.getElementById('focusAreas');
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" class="form-control focus-area" value="${value}" required>
+            <button type="button" class="btn btn-outline-danger" onclick="removeFocusArea(this)">
+                <i class="bi bi-dash"></i>
+            </button>
+        `;
+        focusAreas.appendChild(div);
+    }
+
+    // 删除关注点
+    function removeFocusArea(button) {
+        const focusAreas = document.getElementById('focusAreas');
+        if (focusAreas.children.length > 1) {
+            button.closest('.input-group').remove();
+        }
+    }
+
+    // 保存策略
+    function saveStrategy() {
+        const marketAnalysis = document.getElementById('marketAnalysis').value;
+        // 修正获取关注重点的方式
+        const focusAreas = Array.from(document.getElementsByClassName('focus-area'))
+            .map(input => input.value.trim())
+            .filter(value => value !== '');
+        const riskWarning = document.getElementById('riskWarning').value;
+        
+        if (!marketAnalysis || !focusAreas.length || !riskWarning) {
+            alert('Please fill in all required fields!');
+            return;
+        }
+        
+        fetch('/api/admin/strategy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                market_analysis: marketAnalysis,
+                trading_focus: focusAreas,
+                risk_warning: riskWarning
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Strategy saved successfully!');
+                loadStrategyHistory(); // 重新加载历史记录
+                // 清空表单
+                document.getElementById('marketAnalysis').value = '';
+                document.getElementById('riskWarning').value = '';
+                // 只保留一个空的关注点输入框
+                const focusAreas = document.getElementById('focusAreas');
+                focusAreas.innerHTML = `
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control focus-area" required>
+                        <button type="button" class="btn btn-outline-danger" onclick="removeFocusArea(this)">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                alert('Save failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Save failed, please try again');
+        });
+    }
+
+    // 删除策略
+    function deleteStrategy(id) {
+        if (!confirm('确定要删除这条策略记录吗？')) {
+            return;
+        }
+        
+        fetch(`/api/admin/strategy?id=${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Strategy deleted successfully');
+                // 刷新整个页面
+                window.location.reload();
+            } else {
+                alert('Delete failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Delete failed, please try again');
+        });
+    }
+
+    // 退出登录
+    function logout() {
+        fetch('/api/logout', {
+            method: 'POST'
+        })
+        .then(() => {
+            window.location.href = '/';
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script> 

@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Trading Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #4361ee;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --text-color: #ffffff;
+            --border-color: #2a2a3a;
+            --gold-color: #ffd700;
+        }
+        
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--secondary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gold-color);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--gold-color);
+        }
+
+        .card {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-color: var(--gold-color);
+        }
+
+        .trade-screenshot {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .trade-screenshot:hover {
+            opacity: 0.9;
+        }
+
+        .stock-info {
+            padding: 0.75rem 1rem;
+            background: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-symbol {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gold-color);
+        }
+
+        .stock-name {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .secondary-info {
+            padding: 1rem;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .secondary-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .secondary-info-label {
+            font-size: 0.75rem;
+            color: #a0a0a0;
+        }
+
+        .secondary-info-value {
+            font-size: 0.9rem;
+            color: var(--gold-color);
+        }
+
+        .main-stats {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            background: var(--primary-color);
+        }
+
+        .main-stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0.75rem;
+            background: rgba(255,215,0,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .main-stat-item:hover {
+            border-color: var(--gold-color);
+            background: rgba(255,215,0,0.05);
+        }
+
+        .main-stat-label {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .main-stat-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--gold-color);
+            line-height: 1.2;
+        }
+
+        .profit-positive {
+            color: var(--success-color);
+            position: relative;
+        }
+
+        .profit-negative {
+            color: var(--danger-color);
+            position: relative;
+        }
+
+        .profit-positive::before,
+        .profit-negative::before {
+            content: '';
+            position: absolute;
+            left: -1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .profit-positive::before {
+            background-color: var(--success-color);
+        }
+
+        .profit-negative::before {
+            background-color: var(--danger-color);
+        }
+
+        .bg-success {
+            background: rgba(46, 204, 113, 0.1) !important;
+            border-color: var(--success-color) !important;
+            color: var(--success-color) !important;
+        }
+
+        .bg-danger {
+            background: rgba(231, 76, 60, 0.1) !important;
+            border-color: var(--danger-color) !important;
+            color: var(--danger-color) !important;
+        }
+
+        .bg-info {
+            background: rgba(67, 97, 238, 0.1) !important;
+            border-color: var(--accent-color) !important;
+            color: var(--accent-color) !important;
+        }
+
+        .modal-content {
+            background-color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Add Image Modal z-index settings */
+        .modal {
+            z-index: 9999 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 1040;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        .modal-body {
+            padding: 0;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            color: var(--gold-color);
+        }
+
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        /* Profile Area Styles */
+        .profile-section {
+            margin-top: 2rem;
+        }
+
+        .profile-header {
+            background: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0) 70%);
+            z-index: 0;
+        }
+
+        .profile-main {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--gold-color);
+            position: relative;
+            box-shadow: 0 0 20px rgba(255,215,0,0.2);
+            cursor: pointer;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .online-status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: var(--success-color);
+            border: 3px solid var(--secondary-color);
+            border-radius: 50%;
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold-color);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(255,215,0,0.2);
+        }
+
+        .profile-title {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .profile-stats .stat-item {
+            flex: 1 1 0;
+            min-width: 120px;
+            max-width: 200px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,215,0,0.05);
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-stats .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold-color);
+        }
+
+        .profile-stats .stat-label {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .profile-performance {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .performance-card {
+            flex: 1;
+            background: rgba(255,215,0,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .performance-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold-color);
+            background: rgba(255,215,0,0.05);
+        }
+
+        .performance-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #a0a0a0;
+            margin-bottom: 0.75rem;
+        }
+
+        .performance-header i {
+            font-size: 1.25rem;
+            color: var(--gold-color);
+        }
+
+        .performance-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gold-color);
+        }
+
+        .performance-value.positive {
+            color: var(--success-color);
+        }
+
+        /* Trading Strategy Update Area Styles */
+        .strategy-update {
+            background: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .strategy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .strategy-header h3 {
+            font-size: 1.5rem;
+            color: var(--gold-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .strategy-header h3 i {
+            color: var(--gold-color);
+        }
+
+        .update-time {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .strategy-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .strategy-content h4 {
+            color: var(--gold-color);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .strategy-content p {
+            color: #a0a0a0;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .trading-focus ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .trading-focus li {
+            color: #a0a0a0;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .trading-focus li:last-child {
+            border-bottom: none;
+        }
+
+        .risk-warning {
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid var(--danger-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .risk-warning h4 {
+            color: var(--danger-color);
+        }
+
+        /* Trade Record Separator Styles */
+        .trade-separator {
+            margin: 2rem 0;
+        }
+
+        .trade-separator h3 {
+            font-size: 1.2rem;
+            color: var(--gold-color);
+            margin: 0 0 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .trade-separator h3 i {
+            color: var(--gold-color);
+            font-size: 1.1rem;
+        }
+
+        .trade-separator .divider-line {
+            width: 100%;
+            height: 2px;
+            background: var(--border-color);
+        }
+
+        /* Contact Button Styles */
+        .contact-btn {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            background: var(--gold-color);
+            color: var(--primary-color);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .contact-btn i {
+            font-size: 1.2rem;
+        }
+
+        .contact-popup {
+            position: fixed;
+            right: 30px;
+            bottom: 90px;
+            background: var(--secondary-color);
+            border: 1px solid var(--gold-color);
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .contact-popup.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .contact-popup h4 {
+            color: var(--gold-color);
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .contact-item i {
+            color: var(--gold-color);
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .profile-main {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+
+            .profile-performance {
+                flex-direction: column;
+            }
+
+            .strategy-content {
+                grid-template-columns: 1fr;
+            }
+
+            /* Add Mobile Strategy Title and Update Time Styles */
+            .strategy-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .strategy-header h3 {
+                font-size: 1.3rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .update-time {
+                margin-left: 2rem;
+                font-size: 0.85rem;
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+            }
+
+            .profile-name {
+                font-size: 2rem;
+            }
+
+            .contact-popup {
+                width: calc(100% - 60px);
+                right: 15px;
+                bottom: 90px;
+            }
+        }
+
+        /* Avatar Upload and Preview Styles */
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--gold-color);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-upload:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-upload-input {
+            display: none;
+        }
+
+        /* Avatar Preview Modal Styles */
+        .avatar-preview-modal .modal-content {
+            background: var(--primary-color);
+            border: 1px solid var(--gold-color);
+        }
+
+        .avatar-preview-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .profile-badges-floating {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 1100;
+            transition: opacity 0.3s ease;
+        }
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(34,34,34,0.92);
+            border-radius: 20px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+            padding: 1rem 1.4rem 0.6rem 1.4rem;
+            min-width: 100px;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .badge-item:hover {
+            box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3em;
+            margin-bottom: 0.2em;
+        }
+        .badge-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #ffd70044;
+            background: #111;
+        }
+        .badge-label {
+            color: #FFD700;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 1.5px;
+            text-shadow: 0 1px 3px #ffd70033;
+        }
+        .badge-value {
+            color: #FFD700;
+            font-weight: 700;
+            font-size: 1.08rem;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px #fff5;
+            margin-top: 0.2rem;
+        }
+        .badge-value-alt {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.08rem;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px #FFD70055;
+            margin-top: 0.2rem;
+        }
+        .badge-value-vip {
+            color: #B0C4DE;
+            font-weight: 700;
+            font-size: 1.08rem;
+            letter-spacing: 1px;
+            text-shadow: 0 1px 2px #FFD70055;
+            margin-top: 0.2rem;
+        }
+        .badge-art-text {
+            background: linear-gradient(90deg, #222 60%, #444 100%);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+            border-radius: 18px;
+            padding: 0.7rem 1.1rem 0.4rem 1.1rem;
+            min-width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .art-text {
+            font-family: 'STXingkai', 'FZShuTi', 'Arial Black', cursive, sans-serif;
+            font-size: 1.18rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #FFD700 60%, #fffbe6 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 8px #ffd70055, 0 1px 2px #fff5;
+            letter-spacing: 2px;
+            padding: 0.1em 0.2em;
+        }
+        @media (max-width: 768px) {
+            .profile-badges-floating {
+                top: 75px;
+                right: 10px;
+                gap: 0.5rem;
+            }
+            .badge-item {
+                min-width: 80px;
+                padding: 0.6rem 1rem 0.4rem 1rem;
+                transition: opacity 0.3s ease;
+            }
+            .badge-icon, .badge-icon-svg svg {
+                width: 28px;
+                height: 28px;
+            }
+            .badge-value, .badge-value-alt, .badge-value-vip {
+                font-size: 0.95rem;
+            }
+            .profile-badges-floating.scrolling {
+                opacity: 0.3;
+            }
+        }
+
+        /* Modify Marquee Animation Styles */
+        .redirect-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            padding: 15px 30px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            z-index: 10000;
+            display: none;
+            white-space: nowrap;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            -webkit-transform: translateX(-50%);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+        }
+
+        .redirect-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-color) 0%, var(--accent-color) 100%);
+            animation: progressBar 3s linear forwards;
+            -webkit-animation: progressBar 3s linear forwards;
+            opacity: 0.15;
+        }
+
+        .redirect-message .text {
+            background: linear-gradient(90deg, var(--gold-color) 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGradient 3s linear forwards;
+            -webkit-animation: textGradient 3s linear forwards;
+        }
+
+        .redirect-message .dots {
+            display: inline-block;
+            width: 24px;
+        }
+
+        .redirect-message .dots::after {
+            content: '';
+            animation: dots 1s infinite;
+            -webkit-animation: dots 1s infinite;
+        }
+
+        @keyframes dots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+            100% { content: '.'; }
+        }
+
+        @-webkit-keyframes dots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+            100% { content: '.'; }
+        }
+
+        @keyframes progressBar {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @-webkit-keyframes progressBar {
+            from { -webkit-transform: translateX(-100%); }
+            to { -webkit-transform: translateX(0); }
+        }
+
+        @keyframes textGradient {
+            from { background-position: 200% center; }
+            to { background-position: 0 center; }
+        }
+
+        @-webkit-keyframes textGradient {
+            from { background-position: 200% center; }
+            to { background-position: 0 center; }
+        }
+
+        @keyframes fadeInOut {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, 20px);
+            }
+            10% { 
+                opacity: 1; 
+                transform: translate(-50%, 0);
+            }
+            90% { 
+                opacity: 1; 
+                transform: translate(-50%, 0);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, 20px);
+            }
+        }
+
+        @-webkit-keyframes fadeInOut {
+            0% { 
+                opacity: 0; 
+                -webkit-transform: translate(-50%, 20px);
+            }
+            10% { 
+                opacity: 1; 
+                -webkit-transform: translate(-50%, 0);
+            }
+            90% { 
+                opacity: 1; 
+                -webkit-transform: translate(-50%, 0);
+            }
+            100% { 
+                opacity: 0; 
+                -webkit-transform: translate(-50%, 20px);
+            }
+        }
+
+        .redirect-message.show {
+            display: block;
+            -webkit-animation: fadeInOut 3s ease-in-out forwards;
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+
+        .plus-one-effect {
+            position: absolute;
+            left: 50%;
+            top: 55%;
+            transform: translate(-50%, 0);
+            color: #FFD700;
+            font-size: 1.3rem;
+            font-weight: 900;
+            pointer-events: none;
+            opacity: 1;
+            animation: plusOneUp 1s ease-out forwards;
+            z-index: 9999;
+        }
+        @keyframes plusOneUp {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            60% { opacity: 1; transform: translate(-50%, -30px) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50px) scale(1.1); }
+        }
+
+        /* 在 style 区域末尾添加发光动画 */
+        .glow-bulb {
+            color: #ffd700;
+            filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 16px #fff200);
+            animation: bulb-glow 1.2s infinite alternate;
+            transition: color 0.3s;
+        }
+        @keyframes bulb-glow {
+            0% {
+                filter: drop-shadow(0 0 4px #ffd700) drop-shadow(0 0 8px #fff200);
+                color: #ffd700;
+            }
+            50% {
+                filter: drop-shadow(0 0 16px #fff200) drop-shadow(0 0 32px #fffbe0);
+                color: #fffbe0;
+            }
+            100% {
+                filter: drop-shadow(0 0 4px #ffd700) drop-shadow(0 0 8px #fff200);
+                color: #ffd700;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-graph-up me-2"></i>
+                Ventura Internal Performance Battle Rankings
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Trader Profiles Section -->
+        {% for trader in trader_profiles %}
+        <div class="profile-section mb-5">
+            <div class="profile-header">
+                <div class="profile-main">
+                    <div class="profile-avatar" onclick="openAvatarPreview()">
+                        <img src="{{ trader.profile_image_url }}" alt="Avatar" class="avatar-img" 
+                             onload="console.log('头像加载成功:', this.src);"
+                             crossorigin="anonymous"
+                             onerror="console.log('头像加载失败，尝试代理:', this.src); this.onerror=null; this.src='/api/proxy-avatar?url=' + encodeURIComponent('{{ trader.profile_image_url }}');">
+                        <div class="online-status"></div>
+                        <button class="avatar-upload" onclick="event.stopPropagation(); document.getElementById('avatarUpload').click();">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                        <input type="file" id="avatarUpload" class="avatar-upload-input" accept="image/*" onchange="handleAvatarUpload(event)">
+                    </div>
+                    <div class="profile-details">
+                        <h1 class="profile-name">{{ trader.trader_name }}</h1>
+                        <div class="profile-title">{{ trader.professional_title }}</div>
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ trader.years_of_experience|default(0) }}</span>
+                                <span class="stat-label">Years of Experience</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">{{ trader.total_trades|default(0) }}+</span>
+                                <span class="stat-label">Total Trades</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">{{ "%.1f"|format(trader.win_rate|default(0)) }}%</span>
+                                <span class="stat-label">Win Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-performance">
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <i class="bi bi-briefcase"></i>
+                            <span>Active Positions</span>
+                        </div>
+                        <div class="performance-value">
+                            {{ trader.active_trades }}
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>Monthly P&L</span>
+                        </div>
+                        <div class="performance-value {% if trader.monthly_profit >= 0 %}positive{% endif %}">
+                            {% if trader.monthly_profit >= 0 %}+{% endif %}${{ "%.2f"|format(trader.monthly_profit) }}
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Total P&L</span>
+                        </div>
+                        <div class="performance-value {% if trader.total_profit >= 0 %}positive{% endif %}">
+                            {% if trader.total_profit >= 0 %}+{% endif %}${{ "%.2f"|format(trader.total_profit|default(0)) }}
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <i class="bi bi-people"></i>
+                            <span>Members</span>
+                        </div>
+                        <div class="performance-value">
+                            {{ trader.members_count|default(0) }}
+                        </div>
+                    </div>
+                    <div class="performance-card">
+                        <div class="performance-header">
+                            <i class="bi bi-heart"></i>
+                            <span>Likes</span>
+                        </div>
+                        <div class="performance-value">
+                            {{ trader.likes_count|default(0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy Update Section -->
+            <div class="strategy-update">
+                <div class="strategy-header">
+                    <h3><i class="bi bi-lightbulb glow-bulb"></i> Today's Trading Strategy</h3>
+                    <span class="update-time">Updated at: {{ trader.strategy_info.formatted_time }}</span>
+                </div>
+                <div class="strategy-content">
+                    <div class="market-analysis">
+                        <h4>Market Analysis</h4>
+                        <p>{{ trader.strategy_info.market_analysis }}</p>
+                    </div>
+                    <div class="trading-focus">
+                        <h4>Focus Areas</h4>
+                        <ul>
+                            {% for focus in trader.strategy_info.trading_focus %}
+                            <li>{{ focus }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="risk-warning">
+                        <h4>Risk Warning</h4>
+                        <p>{{ trader.strategy_info.risk_warning }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+            <!-- Trading Record Divider -->
+            <div class="trade-separator">
+                <h3><i class="bi bi-clipboard-data"></i> Trading Records (Last 3 Months)</h3>
+                <div class="divider-line"></div>
+            </div>
+        </div>
+
+        <!-- Stock Trading Cards -->
+        <div class="row">
+            {# First show active trades #}
+            {% for trade in trades|selectattr('status', 'equalto', 'Active') %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="stock-info">
+                        <div>
+                            <div class="stock-symbol">{{ trade.symbol }}</div>
+                            <div class="stock-name">{{ trade.name }}</div>
+                        </div>
+                        <span class="badge bg-success status-badge">Active</span>
+                    </div>
+
+                    {% if trade.image_url %}
+                    <img src="{{ trade.image_url }}" alt="{{ trade.symbol }}" class="trade-screenshot"
+                         data-bs-toggle="modal"
+                         data-bs-target="#imageModal-{{ trade.status }}-{{ loop.index0 }}">
+                    {% endif %}
+                    
+                    <div class="secondary-info">
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Entry Date</span>
+                            <span class="secondary-info-value">{{ trade.entry_date[:10] }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Entry Price</span>
+                            <span class="secondary-info-value">{{ "%.2f"|format(trade.entry_price) }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Current Price</span>
+                            <span class="secondary-info-value" id="current-price-{{ trade.symbol }}">{{ "%.2f"|format(trade.current_price) }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Quantity</span>
+                            <span class="secondary-info-value" id="trade-size-{{ trade.symbol }}">{{ trade.size }}</span>
+                        </div>
+                    </div>
+
+                    <div class="main-stats">
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">Entry Amount</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.entry_amount) }}</div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">Market Value</div>
+                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.current_amount) }}</div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">P&L Ratio</div>
+                            <div class="main-stat-value {% if trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
+                                {{ "%.2f"|format(trade.profit_ratio) }}%
+                            </div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">P&L Amount</div>
+                            <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
+                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ "%.2f"|format(trade.profit_amount) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for each image -->
+            {% if trade.image_url %}
+            <div class="modal fade" id="imageModal-{{ trade.status }}-{{ loop.index0 }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ trade.symbol }} - {{ trade.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <img src="{{ trade.image_url }}" 
+                                 alt="{{ trade.symbol }}" 
+                                 class="modal-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            {# Then show closed trades #}
+            {% for trade in trades|selectattr('status', 'equalto', 'Closed') %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="stock-info">
+                        <div>
+                            <div class="stock-symbol">{{ trade.symbol }}</div>
+                            <div class="stock-name">{{ trade.name }}</div>
+                        </div>
+                        <span class="badge {% if trade.profit_amount >= 0 %}bg-info{% else %}bg-danger{% endif %} status-badge">
+                            {% if trade.profit_amount >= 0 %}Take Profit{% else %}Stop Loss{% endif %}
+                        </span>
+                    </div>
+
+                    {% if trade.image_url %}
+                    <img src="{{ trade.image_url }}" alt="{{ trade.symbol }}" class="trade-screenshot"
+                         data-bs-toggle="modal"
+                         data-bs-target="#imageModal-{{ trade.status }}-{{ loop.index0 }}">
+                    {% endif %}
+                    
+                    <div class="secondary-info">
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Entry Date</span>
+                            <span class="secondary-info-value">{{ trade.entry_date[:10] }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Entry Price</span>
+                            <span class="secondary-info-value">{{ "%.2f"|format(trade.entry_price) }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Exit Date</span>
+                            <span class="secondary-info-value">{{ trade.exit_date[:10] if trade.exit_date else 'N/A' }}</span>
+                        </div>
+                        <div class="secondary-info-item">
+                            <span class="secondary-info-label">Exit Price</span>
+                            <span class="secondary-info-value">{{ "%.2f"|format(trade.exit_price) if trade.exit_price else 'N/A' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="main-stats">
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">Entry Amount</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.entry_amount) }}</div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">Market Value</div>
+                            <div class="main-stat-value" id="current-amount-{{ trade.symbol }}">{{ "%.2f"|format(trade.current_amount) }}</div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">P&L Ratio</div>
+                            <div class="main-stat-value {% if trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
+                                {{ "%.2f"|format(trade.profit_ratio) }}%
+                            </div>
+                        </div>
+                        <div class="main-stat-item">
+                            <div class="main-stat-label">P&L Amount</div>
+                            <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
+                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ "%.2f"|format(trade.profit_amount) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for each image -->
+            {% if trade.image_url %}
+            <div class="modal fade" id="imageModal-{{ trade.status }}-{{ loop.index0 }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ trade.symbol }} - {{ trade.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <img src="{{ trade.image_url }}" 
+                                 alt="{{ trade.symbol }}" 
+                                 class="modal-image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Contact Button -->
+    <div class="contact-btn" id="contactButton">
+        <i class="bi bi-people-fill"></i>
+        Join Community
+    </div>
+
+    <!-- Redirect Message -->
+    <div class="redirect-message" id="redirectMessage">
+        <span class="text">Redirecting to WhatsApp Community</span><span class="dots"></span>
+    </div>
+
+    <div class="contact-popup" id="contactPopup">
+        <h4><i class="bi bi-people-fill"></i>Join the Community</h4>
+        <div class="contact-item">
+            <i class="bi bi-discord"></i>
+            <span>Discord: Ventura-trading</span>
+        </div>
+        <div class="contact-item">
+            <i class="bi bi-telegram"></i>
+            <span>Telegram: @Ventura_official</span>
+        </div>
+        <div class="contact-item">
+            <i class="bi bi-twitter"></i>
+            <span>Twitter: @Ventura</span>
+        </div>
+        <div class="contact-item">
+            <i class="bi bi-reddit"></i>
+            <span>Reddit: r/Ventura</span>
+        </div>
+    </div>
+
+    <!-- Avatar Preview Modal -->
+    <div class="modal fade" id="avatarPreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content avatar-preview-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Profile Avatar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img src="{{ trader_profiles[0].profile_image_url if trader_profiles and trader_profiles[0].profile_image_url else '' }}" 
+                         alt="Avatar Preview" 
+                         class="avatar-preview-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-badges-floating">
+        <a href="/leaderboard" style="text-decoration: none; color: inherit;">
+            <div class="badge-item" style="cursor:pointer;">
+                <div class="badge-row">
+                    <span class="badge-icon-container">
+                        <span class="badge-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="trophyGold" x1="6" y1="7" x2="16" y2="14" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#FFD700"/>
+                                        <stop offset="1" stop-color="#FFA500"/>
+                                    </linearGradient>
+                                </defs>
+                                <ellipse cx="11" cy="20" rx="7" ry="2" fill="#FFD700" opacity="0.18"/>
+                                <path d="M6 7C6 4 16 4 16 7C16 10 14 14 11 14C8 14 6 10 6 7Z" fill="url(#trophyGold)" stroke="#FFD700" stroke-width="1.2"/>
+                                <rect x="9" y="14" width="4" height="3" rx="1" fill="#FFD700" stroke="#FFD700" stroke-width="1"/>
+                            </svg>
+                        </span>
+                        <span class="badge-label">LB</span>
+                    </span>
+                </div>
+
+            </div>
+        </a>
+        <a href="/vip" style="text-decoration: none; color: inherit;">
+            <div class="badge-item" style="cursor:pointer;">
+                <div class="badge-row">
+                    <img src="/static/badges/vip.png" alt="VIP" class="badge-icon" />
+                    <span class="badge-label">VIP</span>
+                </div>
+
+            </div>
+        </a>
+        <div class="badge-item" id="like-badge" style="cursor:pointer;">
+            <div class="badge-row">
+                <span class="badge-icon-svg" id="like-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <defs>
+                            <linearGradient id="likeGold" x1="0" y1="0" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFD700"/>
+                                <stop offset="1" stop-color="#FFB300"/>
+                            </linearGradient>
+                        </defs>
+                        <path d="M6 10V18C6 18.55 6.45 19 7 19H13C13.55 19 14 18.55 14 18V10" stroke="url(#likeGold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 19V7.5C10 6.12 11.12 5 12.5 5C13.88 5 15 6.12 15 7.5V10" stroke="url(#likeGold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="badge-label">Likes</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load profile data - 不再需要从API加载，因为数据已经在模板中
+        function loadProfile() {
+            // 头像已经在模板中正确设置，不需要额外加载
+            console.log('Profile data already loaded from template');
+        }
+
+        // Load profile data when page loads
+        document.addEventListener('DOMContentLoaded', loadProfile);
+
+        // Contact customer service button click event
+        document.getElementById('contactButton').addEventListener('click', function() {
+            // Remove previous show class and animation
+            const redirectMsg = document.getElementById('redirectMessage');
+            redirectMsg.style.animation = 'none';
+            redirectMsg.style.webkitAnimation = 'none';
+            redirectMsg.classList.remove('show');
+            redirectMsg.style.display = 'none';
+            
+            // Force repaint
+            void redirectMsg.offsetWidth;
+            
+            // Reset animation and display
+            redirectMsg.style.animation = '';
+            redirectMsg.style.webkitAnimation = '';
+            redirectMsg.style.display = 'block';
+            redirectMsg.classList.add('show');
+            
+            // Record click time
+            const clickTime = new Date().toISOString();
+            
+            fetch('/api/get-whatsapp-link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    click_time: clickTime
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setTimeout(() => {
+                        window.location.href = data.app_link;
+                    }, 3000);
+                } else {
+                    redirectMsg.classList.remove('show');
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                redirectMsg.classList.remove('show');
+                alert('Connection failed, please try again later');
+            });
+        });
+
+        // Click elsewhere to close contact popup
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('contactPopup');
+            const button = document.querySelector('.contact-btn');
+            if (!popup.contains(event.target) && !button.contains(event.target)) {
+                popup.classList.remove('show');
+            }
+        });
+
+        // Open avatar preview
+        function openAvatarPreview() {
+            // 获取当前页面上显示的头像URL
+            const currentAvatarImg = document.querySelector('.avatar-img');
+            const previewImg = document.querySelector('.avatar-preview-img');
+            
+            if (currentAvatarImg && previewImg) {
+                // 确保模态框中的头像与主页面的头像一致
+                previewImg.src = currentAvatarImg.src;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('avatarPreviewModal'));
+            modal.show();
+        }
+
+        // Handle avatar upload
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file type and size
+            if (!file.type.startsWith('image/')) {
+                alert('请上传图片文件');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('图片大小不能超过5MB');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                const response = await fetch('/api/upload-avatar', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update avatar display
+                    const avatarImg = document.querySelector('.avatar-img');
+                    const previewImg = document.querySelector('.avatar-preview-img');
+                    avatarImg.src = result.url;
+                    previewImg.src = result.url;
+                    alert('头像上传成功！');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('上传失败:', error);
+                alert('上传失败，请稍后重试');
+            }
+        }
+
+        // Add check avatar update function
+        function checkAvatarUpdate() {
+            fetch('/api/get-avatar')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('检查头像更新 - API返回数据:', data);
+                    if (data.success && data.url) {
+                        const avatarImg = document.querySelector('.avatar-img');
+                        if (avatarImg) {
+                            console.log('当前头像URL:', avatarImg.src);
+                            console.log('API返回的URL:', data.url);
+                            if (avatarImg.src !== data.url) {
+                                console.log('更新头像URL');
+                                avatarImg.src = data.url;
+                            } else {
+                                console.log('头像URL相同，无需更新');
+                            }
+                        }
+                    } else if (data.success && data.url === null) {
+                        console.log('API返回null，隐藏头像');
+                        const avatarImg = document.querySelector('.avatar-img');
+                        if (avatarImg) {
+                            avatarImg.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('检查头像更新失败:', error));
+        }
+
+        // Start checking avatar update periodically after page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check every 30 seconds
+            setInterval(checkAvatarUpdate, 30000);
+        });
+
+        // Automatically refresh current prices of all held stocks
+        function updateAllCurrentPrices() {
+            document.querySelectorAll('[id^="current-price-"]').forEach(function(span) {
+                const id = span.id;
+                const symbol = id.replace('current-price-', '');
+                const size = parseFloat(document.getElementById('trade-size-' + symbol).textContent);
+                const entryAmount = parseFloat(document.getElementById('entry-amount-' + symbol).textContent);
+                fetch(`/api/price?symbol=${symbol}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const price = parseFloat(data.price);
+                            span.textContent = price.toFixed(2);
+                            // Calculate and update total market value, profit amount, and profit ratio
+                            const currentAmount = price * size;
+                            document.getElementById('current-amount-' + symbol).textContent = currentAmount.toFixed(2);
+                            const profitAmount = currentAmount - entryAmount;
+                            const profitAmountElem = document.getElementById('profit-amount-' + symbol);
+                            // Add sign
+                            profitAmountElem.textContent = (profitAmount >= 0 ? '+' : '') + profitAmount.toFixed(2);
+                            // Profit amount color
+                            profitAmountElem.classList.remove('profit-positive', 'profit-negative');
+                            profitAmountElem.classList.add(profitAmount >= 0 ? 'profit-positive' : 'profit-negative');
+                            // Profit ratio
+                            const profitRatio = entryAmount !== 0 ? (profitAmount / entryAmount) * 100 : 0;
+                            const profitRatioElem = document.getElementById('profit-ratio-' + symbol);
+                            profitRatioElem.textContent = profitRatio.toFixed(2) + '%';
+                            profitRatioElem.classList.remove('profit-positive', 'profit-negative');
+                            profitRatioElem.classList.add(profitRatio >= 0 ? 'profit-positive' : 'profit-negative');
+                        }
+                    });
+            });
+        }
+        setInterval(updateAllCurrentPrices, 30000);
+        document.addEventListener('DOMContentLoaded', updateAllCurrentPrices);
+
+        // Add mobile scroll control for badge transparency
+        let scrollTimeout;
+        const badges = document.querySelector('.profile-badges-floating');
+        
+        function handleScroll() {
+            if (window.innerWidth <= 768) {  // Only apply on mobile
+                badges.classList.add('scrolling');
+                
+                // Clear previous timer
+                clearTimeout(scrollTimeout);
+                
+                // Set new timer, stop scrolling 0.5 seconds after stopping
+                scrollTimeout = setTimeout(() => {
+                    badges.classList.remove('scrolling');
+                }, 500);
+            }
+        }
+
+        // Listen for scroll events
+        window.addEventListener('scroll', handleScroll);
+        
+        // Page load initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing code ...
+            
+            // Ensure badges element exists
+            if (badges) {
+                // Initially opaque
+                badges.classList.remove('scrolling');
+            }
+        });
+
+
+
+        function likeTrader() {
+            // 检查本地是否已经点过赞
+            var today = new Date().toISOString().slice(0, 10);
+            var likeKey = 'likeTrader_TomPreston_' + today;
+            if (localStorage.getItem(likeKey)) {
+                alert('You have already liked today. Thank you for your support and trust!');
+                return;
+            }
+            fetch('/api/like-trader/Tom Preston', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showPlusOneEffect();
+                    localStorage.setItem(likeKey, '1');
+                } else if (data.message && data.message.includes('already liked')) {
+                    alert('You have already liked today. Thank you for your support and trust!');
+                } else {
+                    alert('点赞失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('点赞失败，请重试');
+            });
+        }
+
+        function showPlusOneEffect() {
+            var badge = document.getElementById('like-badge');
+            if (!badge) return;
+            // 创建+1元素
+            var plusOne = document.createElement('span');
+            plusOne.className = 'plus-one-effect';
+            plusOne.textContent = '+1';
+            // 设置定位父级
+            badge.style.position = 'relative';
+            badge.appendChild(plusOne);
+            // 动画结束后移除
+            plusOne.addEventListener('animationend', function() {
+                plusOne.remove();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var likeBadge = document.getElementById('like-badge');
+            if (likeBadge) {
+                likeBadge.onclick = likeTrader;
+            }
+        });
+    </script>
+</body>
+</html> 
