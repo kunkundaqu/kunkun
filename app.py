@@ -429,6 +429,17 @@ def index():
             profile['active_trades'] = len(positions)
             profile['total_profit'] = round(total_profit, 2)
             profile['strategy_info'] = strategy_info
+            
+        # 调试信息
+        print("=" * 50)
+        print("🔍 调试信息 - 交易员数据:")
+        for i, profile in enumerate(trader_profiles):
+            print(f"   交易员 {i+1}:")
+            print(f"      monthly_profit: {profile.get('monthly_profit', 'N/A')}")
+            print(f"      total_profit: {profile.get('total_profit', 'N/A')}")
+            print(f"      format_crore_inr(monthly_profit): {format_crore_inr(profile.get('monthly_profit', 0))}")
+            print(f"      format_crore_inr(total_profit): {format_crore_inr(profile.get('total_profit', 0))}")
+        print("=" * 50)
 
         
         return render_template('index.html', 
