@@ -36,6 +36,7 @@ print("[app.py] 当前 SUPABASE_KEY:", key)
 
 # 股票图片映射
 STOCK_IMAGES = {
+    'TNXP': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop',
     'AAPL': 'https://logo.clearbit.com/apple.com',
     'MSFT': 'https://logo.clearbit.com/microsoft.com',
     'GOOGL': 'https://logo.clearbit.com/google.com',
@@ -312,7 +313,28 @@ def index():
             trade['image_url'] = trade.get('image_url') or STOCK_IMAGES.get(trade['symbol'], '')
             
             # 计算交易金额和盈亏
-            trade['entry_amount'] = trade['entry_price'] * trade['size']
+            if trade.get('entry_price') and trade.get('size'):
+                trade['entry_amount'] = trade['entry_price'] * trade['size']
+            else:
+                trade['entry_amount'] = 0
+            
+            # 确保entry_amount不为None
+            if trade.get('entry_amount') is None:
+                trade['entry_amount'] = 0
+            
+            # 确保entry_amount为数字
+            try:
+                trade['entry_amount'] = float(trade['entry_amount'])
+            except (ValueError, TypeError):
+                trade['entry_amount'] = 0
+            
+            # 确保entry_amount不为NaN
+            if trade['entry_amount'] != trade['entry_amount']:  # 检查NaN
+                trade['entry_amount'] = 0
+            
+            # 确保entry_amount不为无穷大
+            if trade['entry_amount'] == float('inf') or trade['entry_amount'] == float('-inf'):
+                trade['entry_amount'] = 0
             
             # 如果没有current_price，获取实时价格
             if 'current_price' not in trade or not trade['current_price']:
@@ -329,16 +351,79 @@ def index():
                         pass
             
             # 计算当前市值和盈亏
-            trade['current_amount'] = trade['current_price'] * trade['size'] if trade.get('current_price') else trade['entry_amount']
+            if trade.get('current_price') and trade.get('size') and trade.get('entry_price'):
+                trade['current_amount'] = trade['current_price'] * trade['size']
+            else:
+                trade['current_amount'] = trade.get('entry_amount', 0)
+            
+            # 确保current_amount不为None
+            if trade.get('current_amount') is None:
+                trade['current_amount'] = 0
+            
+            # 确保current_amount为数字
+            try:
+                trade['current_amount'] = float(trade['current_amount'])
+            except (ValueError, TypeError):
+                trade['current_amount'] = 0
+            
+            # 确保current_amount不为NaN
+            if trade['current_amount'] != trade['current_amount']:  # 检查NaN
+                trade['current_amount'] = 0
+            
+            # 确保current_amount不为无穷大
+            if trade['current_amount'] == float('inf') or trade['current_amount'] == float('-inf'):
+                trade['current_amount'] = 0
             
             # 计算盈亏
-            if trade.get('exit_price'):
+            if trade.get('exit_price') and trade.get('entry_price') and trade.get('size'):
                 trade['profit_amount'] = (trade['exit_price'] - trade['entry_price']) * trade['size']
             else:
-                trade['profit_amount'] = (trade['current_price'] - trade['entry_price']) * trade['size'] if trade.get('current_price') else 0
+                if trade.get('current_price') and trade.get('entry_price') and trade.get('size'):
+                    trade['profit_amount'] = (trade['current_price'] - trade['entry_price']) * trade['size']
+                else:
+                    trade['profit_amount'] = 0
+            
+            # 确保profit_amount不为None
+            if trade.get('profit_amount') is None:
+                trade['profit_amount'] = 0
+            
+            # 确保profit_amount为数字
+            try:
+                trade['profit_amount'] = float(trade['profit_amount'])
+            except (ValueError, TypeError):
+                trade['profit_amount'] = 0
+            
+            # 确保profit_amount不为NaN
+            if trade['profit_amount'] != trade['profit_amount']:  # 检查NaN
+                trade['profit_amount'] = 0
+            
+            # 确保profit_amount不为无穷大
+            if trade['profit_amount'] == float('inf') or trade['profit_amount'] == float('-inf'):
+                trade['profit_amount'] = 0
             
             # 计算盈亏比例
-            trade['profit_ratio'] = (trade['profit_amount'] / trade['entry_amount']) * 100 if trade['entry_amount'] else 0
+            if trade.get('entry_amount') and trade['entry_amount'] != 0 and trade.get('profit_amount') is not None:
+                trade['profit_ratio'] = (trade['profit_amount'] / trade['entry_amount']) * 100
+            else:
+                trade['profit_ratio'] = 0
+            
+            # 确保profit_ratio不为None
+            if trade.get('profit_ratio') is None:
+                trade['profit_ratio'] = 0
+            
+            # 确保profit_ratio为数字
+            try:
+                trade['profit_ratio'] = float(trade['profit_ratio'])
+            except (ValueError, TypeError):
+                trade['profit_ratio'] = 0
+            
+            # 确保profit_ratio不为NaN
+            if trade['profit_ratio'] != trade['profit_ratio']:  # 检查NaN
+                trade['profit_ratio'] = 0
+            
+            # 确保profit_ratio不为无穷大
+            if trade['profit_ratio'] == float('inf') or trade['profit_ratio'] == float('-inf'):
+                trade['profit_ratio'] = 0
             
             # 设置状态
             if trade.get('exit_price') is None and trade.get('exit_date') is None:
@@ -1857,6 +1942,15 @@ def add_test_data():
         # 添加测试交易记录
         trades_data = [
             {
+                'symbol': 'TNXP',
+                'entry_price': 22.00,
+                'size': 212,
+                'entry_date': datetime.now(pytz.UTC).isoformat(),
+                'current_price': 47.60,
+                'created_at': datetime.now(pytz.UTC).isoformat(),
+                'updated_at': datetime.now(pytz.UTC).isoformat()
+            },
+            {
                 'symbol': 'AAPL',
                 'entry_price': 150.25,
                 'size': 100,
@@ -2842,12 +2936,8 @@ def format_crore_inr(amount):
     """格式化千万卢比显示"""
     if amount == 0:
         return "₹0"
-    elif amount < 1:
-        # 小于1千万，显示为万卢比
-        lakh_amount = amount * 100  # 1千万 = 100万
-        return f"₹{lakh_amount:.1f}万"
     else:
-        return f"₹{amount:.2f}千万"
+        return f"₹{amount:.2f}CR"
 
 if __name__ == '__main__':
     # 初始化数据库

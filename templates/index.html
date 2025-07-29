@@ -23,6 +23,7 @@
             background-color: var(--primary-color);
             color: var(--text-color);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
         }
 
         .navbar {
@@ -40,35 +41,40 @@
 
         .card {
             background-color: var(--secondary-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border: 2px solid var(--gold-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
             margin-bottom: 15px;
             overflow: hidden;
+            height: 100%;
+            position: relative;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             border-color: var(--gold-color);
         }
 
         .trade-screenshot {
             width: 100%;
-            height: 150px;
+            height: 200px;
             object-fit: cover;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             transition: opacity 0.2s ease;
+            background: #f8f9fa;
         }
 
         .trade-screenshot:hover {
             opacity: 0.9;
         }
 
+
+
         .stock-info {
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             background: var(--primary-color);
             display: flex;
             justify-content: space-between;
@@ -486,12 +492,13 @@
         /* Trade Record Separator Styles */
         .trade-separator {
             margin: 2rem 0;
+            text-align: left;
         }
 
         .trade-separator h3 {
             font-size: 1.2rem;
             color: var(--gold-color);
-            margin: 0 0 0.8rem 0;
+            margin: 0 0 0.5rem 0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -504,14 +511,15 @@
 
         .trade-separator .divider-line {
             width: 100%;
-            height: 2px;
+            height: 1px;
             background: var(--border-color);
+            margin: 0;
         }
 
         /* Contact Button Styles */
         .contact-btn {
             position: fixed;
-            right: 30px;
+            right: 25px;
             bottom: 30px;
             background: var(--gold-color);
             color: var(--primary-color);
@@ -538,7 +546,7 @@
 
         .contact-popup {
             position: fixed;
-            right: 30px;
+            right: 20px;
             bottom: 90px;
             background: var(--secondary-color);
             border: 1px solid var(--gold-color);
@@ -687,22 +695,25 @@
         .profile-badges-floating {
             position: fixed;
             top: 100px;
-            right: 30px;
+            right: 15px;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
-            z-index: 1100;
+            z-index: 1050;
             transition: opacity 0.3s ease;
+            pointer-events: auto;
+            width: 110px;
         }
         .badge-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: rgba(34,34,34,0.92);
+            background: rgba(34,34,34,0.85);
             border-radius: 20px;
             box-shadow: 0 6px 24px rgba(0,0,0,0.22);
             padding: 1rem 1.4rem 0.6rem 1.4rem;
-            min-width: 100px;
+            min-width: 90px;
+            max-width: 110px;
             transition: box-shadow 0.2s, transform 0.2s;
         }
         .badge-item:hover {
@@ -780,11 +791,35 @@
         @media (max-width: 768px) {
             .profile-badges-floating {
                 top: 75px;
-                right: 10px;
+                right: 3px;
                 gap: 0.5rem;
+                width: 90px;
+            }
+            .row {
+                margin: 1rem auto !important;
+                max-width: 100% !important;
+            }
+            .contact-btn {
+                right: 15px;
+                bottom: 20px;
+            }
+            .contact-popup {
+                right: 10px;
+                bottom: 80px;
+                width: 280px;
+            }
+            .container {
+                padding: 0 15px !important;
+            }
+            .trade-separator h3 {
+                font-size: 1.1rem;
+            }
+            .trade-separator .divider-line {
+                width: 100%;
             }
             .badge-item {
-                min-width: 80px;
+                min-width: 70px;
+                max-width: 90px;
                 padding: 0.6rem 1rem 0.4rem 1rem;
                 transition: opacity 0.3s ease;
             }
@@ -986,7 +1021,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container" style="max-width: 1400px; padding: 0 20px;">
         <!-- Trader Profiles Section -->
         {% for trader in trader_profiles %}
         <div class="profile-section mb-5">
@@ -1107,11 +1142,11 @@
         </div>
 
         <!-- Stock Trading Cards -->
-        <div class="row">
+        <div class="row justify-content-center" style="margin: 2rem auto; max-width: 1400px;">
             {# First show active trades #}
             {% for trade in trades|selectattr('status', 'equalto', 'Active') %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card">
+            <div class="col-md-6 col-lg-4 mb-4 d-flex">
+                <div class="card h-100 w-100">
                     <div class="stock-info">
                         <div>
                             <div class="stock-symbol">{{ trade.symbol }}</div>
@@ -1148,7 +1183,7 @@
                     <div class="main-stats">
                         <div class="main-stat-item">
                             <div class="main-stat-label">Entry Amount</div>
-                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.entry_amount) }}</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}" data-usd-amount="{{ trade.entry_amount }}">{{ format_crore_inr(trade.entry_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">Market Value</div>
@@ -1156,14 +1191,14 @@
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Ratio</div>
-                            <div class="main-stat-value {% if trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
-                                {{ "%.2f"|format(trade.profit_ratio) }}%
+                            <div class="main-stat-value {% if trade.profit_ratio and trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
+                                {% if trade.profit_ratio is not none %}{{ "%.2f"|format(trade.profit_ratio) }}%{% else %}0.00%{% endif %}
                             </div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Amount</div>
-                            <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
-                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}
+                            <div class="main-stat-value {% if trade.profit_amount and trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
+                                {% if trade.profit_amount is not none %}{% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}{% else %}{{ format_crore_inr(0) }}{% endif %}
                             </div>
                         </div>
                     </div>
@@ -1192,8 +1227,8 @@
 
             {# Then show closed trades #}
             {% for trade in trades|selectattr('status', 'equalto', 'Closed') %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card">
+            <div class="col-md-6 col-lg-4 mb-4 d-flex">
+                <div class="card h-100 w-100">
                     <div class="stock-info">
                         <div>
                             <div class="stock-symbol">{{ trade.symbol }}</div>
@@ -1232,7 +1267,7 @@
                     <div class="main-stats">
                         <div class="main-stat-item">
                             <div class="main-stat-label">Entry Amount</div>
-                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}">{{ format_crore_inr(trade.entry_amount) }}</div>
+                            <div class="main-stat-value" id="entry-amount-{{ trade.symbol }}" data-usd-amount="{{ trade.entry_amount }}">{{ format_crore_inr(trade.entry_amount) }}</div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">Market Value</div>
@@ -1240,14 +1275,14 @@
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Ratio</div>
-                            <div class="main-stat-value {% if trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
-                                {{ "%.2f"|format(trade.profit_ratio) }}%
+                            <div class="main-stat-value {% if trade.profit_ratio and trade.profit_ratio >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-ratio-{{ trade.symbol }}">
+                                {% if trade.profit_ratio is not none %}{{ "%.2f"|format(trade.profit_ratio) }}%{% else %}0.00%{% endif %}
                             </div>
                         </div>
                         <div class="main-stat-item">
                             <div class="main-stat-label">P&L Amount</div>
-                            <div class="main-stat-value {% if trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
-                                {% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}
+                            <div class="main-stat-value {% if trade.profit_amount and trade.profit_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}" id="profit-amount-{{ trade.symbol }}">
+                                {% if trade.profit_amount is not none %}{% if trade.profit_amount >= 0 %}+{% endif %}{{ format_crore_inr(trade.profit_amount) }}{% else %}{{ format_crore_inr(0) }}{% endif %}
                             </div>
                         </div>
                     </div>
@@ -1544,7 +1579,7 @@
                 const id = span.id;
                 const symbol = id.replace('current-price-', '');
                 const size = parseFloat(document.getElementById('trade-size-' + symbol).textContent);
-                const entryAmount = parseFloat(document.getElementById('entry-amount-' + symbol).textContent);
+                const entryAmount = parseFloat(document.getElementById('entry-amount-' + symbol).getAttribute('data-usd-amount'));
                 fetch(`/api/price?symbol=${symbol}`)
                     .then(res => res.json())
                     .then(data => {
@@ -1553,16 +1588,22 @@
                             span.textContent = price.toFixed(2);
                             // Calculate and update total market value, profit amount, and profit ratio
                             const currentAmount = price * size;
-                            document.getElementById('current-amount-' + symbol).textContent = currentAmount.toFixed(2);
+                            // Convert to INR and format with CR
+                            const currentAmountInr = currentAmount * 83 / 10000000;
+                            const formattedCurrentAmount = `₹${currentAmountInr.toFixed(2)}CR`;
+                            document.getElementById('current-amount-' + symbol).textContent = formattedCurrentAmount;
+                            
                             const profitAmount = currentAmount - entryAmount;
                             const profitAmountElem = document.getElementById('profit-amount-' + symbol);
-                            // Add sign
-                            profitAmountElem.textContent = (profitAmount >= 0 ? '+' : '') + profitAmount.toFixed(2);
+                            // Convert profit to INR and format
+                            const profitAmountInr = profitAmount * 83 / 10000000;
+                            const formattedProfitAmount = `₹${profitAmountInr.toFixed(2)}CR`;
+                            profitAmountElem.textContent = (profitAmount >= 0 ? '+' : '') + formattedProfitAmount;
                             // Profit amount color
                             profitAmountElem.classList.remove('profit-positive', 'profit-negative');
                             profitAmountElem.classList.add(profitAmount >= 0 ? 'profit-positive' : 'profit-negative');
                             // Profit ratio
-                            const profitRatio = entryAmount !== 0 ? (profitAmount / entryAmount) * 100 : 0;
+                            const profitRatio = (entryAmount && entryAmount !== 0) ? (profitAmount / entryAmount) * 100 : 0;
                             const profitRatioElem = document.getElementById('profit-ratio-' + symbol);
                             profitRatioElem.textContent = profitRatio.toFixed(2) + '%';
                             profitRatioElem.classList.remove('profit-positive', 'profit-negative');
